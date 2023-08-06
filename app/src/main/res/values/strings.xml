@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">ZScanner</string>
+    <string name="loginBladSerwera">Błąd serwera</string>
+    <string name="loginBladPolaczenia">Błąd połączenia</string>
+</resources>
