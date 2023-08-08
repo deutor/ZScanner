@@ -5,9 +5,9 @@ import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.moshi.MoshiConverterFactory;
 
-public class APIClient2 {
+public class REST_APIClient {
     private static Retrofit retrofit = null;
-    static APIInterface api = null;
+    static REST_APIInterface api = null;
 
     static Retrofit getClient() {
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
