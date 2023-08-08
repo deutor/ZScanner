@@ -1,5 +1,6 @@
 package eu.ldaldx.mobile.zscanner;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -10,10 +11,11 @@ import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
 
 
 public class CustomMenuAdapter extends RecyclerView.Adapter<CustomMenuAdapter.ViewHolder> {
-    private String[] localDataSet;
+    private ArrayList<CustomMenuEntry> localCmeEntries;
     private IMenuListener menuListener;
 
     /**
@@ -40,8 +42,8 @@ public class CustomMenuAdapter extends RecyclerView.Adapter<CustomMenuAdapter.Vi
      * @param dataSet String[] containing the data to populate views to be used
      * by RecyclerView
      */
-    public CustomMenuAdapter(String[] dataSet, IMenuListener listener) {
-        localDataSet = dataSet;
+    public CustomMenuAdapter(ArrayList<CustomMenuEntry> cmeArray, IMenuListener listener) {
+        localCmeEntries = cmeArray;
         this.menuListener = listener;
     }
 
@@ -57,15 +59,23 @@ public class CustomMenuAdapter extends RecyclerView.Adapter<CustomMenuAdapter.Vi
     }
 
     // Replace the contents of a view (invoked by the layout manager)
+    @SuppressLint("RecyclerView")
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, final int position) {
         TextView tv;
 
         tv = viewHolder.getMenuItem();
 
+/*
+        LinearLayout.LayoutParams lllp = (LinearLayout.LayoutParams)tv.getLayoutParams();
+
+        lllp.width = 200;
+        tv.setVisibility(View.INVISIBLE);
+        */
+
         // Get element from your dataset at this position and replace the
         // contents of the view with that element
-        tv.setText(localDataSet[position]);
+        tv.setText( localCmeEntries.get(position).getMenuEntry());
 
         tv.setOnClickListener(v -> {
             menuListener.onMenuItemClick( position, Integer.toString(position) );
@@ -131,7 +141,7 @@ public class CustomMenuAdapter extends RecyclerView.Adapter<CustomMenuAdapter.Vi
     // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
-        return localDataSet.length;
+        return localCmeEntries.size();
     }
 }
 

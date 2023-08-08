@@ -10,18 +10,17 @@
 
 
     <TextView
+        android:id="@+id/txtMenuEntry"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:textSize = "28dp"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-        android:text = "test"
         android:clickable="true"
-        android:focusableInTouchMode="true"
-        android:textIsSelectable="true"
-        android:id="@+id/txtMenuEntry"></TextView>
+        android:text="menu_entry"
+        android:textSize="28dp"></TextView>
 
     <View
+        android:id="@+id/lineMenuEntry"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_marginLeft="10dp"
