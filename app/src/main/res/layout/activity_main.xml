@@ -7,42 +7,14 @@
     android:id = "@+id/mainLayout"
     android:layout_gravity="top|left"
     tools:context=".MainActivity">
-<!--
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
-    <com.google.android.material.textfield.TextInputLayout
-
-        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
-        android:layout_marginTop="100dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <AutoCompleteTextView
-
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="hint"
-        />
-    </com.google.android.material.textfield.TextInputLayout>
+    <include layout="@layout/menu_with_title"/>
+    <include layout="@layout/browser_with_title"/>
 
     <Button
         android:id="@+id/button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="200dp"
         android:text="Button" />
--->
-    <include layout="@layout/menu_with_title"/>
-
-
-
-
 
 </FrameLayout>
