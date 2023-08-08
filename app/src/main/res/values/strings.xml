@@ -2,4 +2,8 @@
     <string name="app_name">ZScanner</string>
     <string name="loginBladSerwera">Błąd serwera</string>
     <string name="loginBladPolaczenia">Błąd połączenia</string>
+    <string name="zebra_activity_intent_filter_action">eu.ldaldx</string>
+    <string name="zebra_datawedge_intent_key_source">com.symbol.datawedge.source</string>
+    <string name="zebra_datawedge_intent_key_data">com.symbol.datawedge.data_string</string>
+    <string name="zebra_datawedge_intent_key_label_type">com.symbol.datawedge.label_type</string>
 </resources>
