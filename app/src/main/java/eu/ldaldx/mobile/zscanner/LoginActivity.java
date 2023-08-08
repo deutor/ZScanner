@@ -4,13 +4,12 @@ import androidx.appcompat.app.AppCompatActivity;
 
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
-import android.util.Log;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 
 import retrofit2.Call;
 
@@ -22,7 +21,7 @@ public class LoginActivity extends AppCompatActivity {
     private ActivityLoginBinding binding;
     private EditText editPassword;
     private EditText editUser;
-    APIInterface apiInterface;
+    REST_APIInterface RESTApiInterface;
 
     protected void displayAlert(String title, String message) {
         AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(this);
@@ -33,6 +32,9 @@ public class LoginActivity extends AppCompatActivity {
         dlgAlert.create().show();
     }
 
+    protected void createDataWedgeProfile(Context context) {
+        Zebra_DWInterface.createDataWedgeProfile(context);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,15 +53,15 @@ public class LoginActivity extends AppCompatActivity {
         editUser.setShowSoftInputOnFocus(false);
         //editUser.setFocusable(true);
         //editUser.setCursorVisible(true);
-        InputMethodManager inputMethodManager = (InputMethodManager)this.getSystemService("input_method");
+        InputMethodManager inputMethodManager = (InputMethodManager)this.getSystemService(Context.INPUT_METHOD_SERVICE);
         if (inputMethodManager != null)
             inputMethodManager.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 1);
 
+        createDataWedgeProfile(binding.getRoot().getContext());
 
 
 
-
-        apiInterface = APIClient2.getClient().create(APIInterface.class);
+        RESTApiInterface = REST_APIClient.getClient().create(REST_APIInterface.class);
 
         /* ======================== */
         Intent main = new Intent(getApplicationContext(), MainActivity.class);
@@ -78,7 +80,7 @@ public class LoginActivity extends AppCompatActivity {
             loginRequestData.setAction("doLogin");
             loginRequestData.setVersion(1);
 
-            Call<LoginResponseData> callLogin = apiInterface.doLogin(loginRequestData);
+            Call<LoginResponseData> callLogin = RESTApiInterface.doLogin(loginRequestData);
 
             callLogin.enqueue(new Callback<LoginResponseData>() {
                 @Override
