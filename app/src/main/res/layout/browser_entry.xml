@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    >
+    <TableLayout
+        android:layout_width="match_parent"
+
+        android:layout_height="26dp"
+        android:orientation="horizontal">
+
+
+        <TableRow
+            android:focusable="true"
+            android:defaultFocusHighlightEnabled="true"
+            android:clickable="true"
+            android:id="@+id/browserRow"
+            >
+            <TextView
+                android:id="@+id/txtBrowserCol1"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:text="column1"
+                android:textSize="18dp"></TextView>
+
+            <TextView
+                android:id="@+id/txtBrowserCol2"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:text="column2"
+                android:textSize="18dp"></TextView>
+
+            <TextView
+                android:id="@+id/txtBrowserCol3"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:text="column3"
+                android:textSize="18dp"></TextView>
+
+            <TextView
+                android:id="@+id/txtBrowserCol4"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:text="column4"
+                android:textSize="18dp"></TextView>
+        </TableRow>
+    </TableLayout>
+</HorizontalScrollView>
+
+
