@@ -2,12 +2,15 @@ package eu.ldaldx.mobile.zscanner;
 
 import android.content.Context;
 import android.util.DisplayMetrics;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -19,6 +22,10 @@ import java.util.HashMap;
 public class CustomMenu extends LinearLayout implements IMenuListener {
 
     private FrameLayout parentLayout;
+    private FrameLayout userLayout;
+
+    private LinearLayout layoutMenuTopLevel;
+
     private LinearLayout layout;
     private LinearLayout layoutInner;
 
@@ -37,11 +44,19 @@ public class CustomMenu extends LinearLayout implements IMenuListener {
 
         super(context);
         this.parentLayout = parentLayout;
+
         this.mainListener = listener;
         this.mainHeight = height;
 
         layout = (LinearLayout) parentLayout.findViewById(R.id.mainMenuWithTitleExt);
         layoutInner = (LinearLayout) parentLayout.findViewById(R.id.mainMenuWithTitleInt);
+
+
+        layoutMenuTopLevel = (LinearLayout) parentLayout.findViewById(R.id.mainMenuTopLayout);
+
+        userLayout = (FrameLayout) parentLayout.findViewById(R.id.mainLayout);
+
+
 
         this.titleTextView = (TextView) parentLayout.findViewById(R.id.mainMenuTitle);
         titleTextView.measure(0,0);
@@ -60,14 +75,23 @@ public class CustomMenu extends LinearLayout implements IMenuListener {
         }
 
 
+        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                    hide();
+            }
+        };
     }
 
+
     protected void hide() {
-        layout.setVisibility(INVISIBLE);
+        //userLayout.bringToFront();
+        layout.setVisibility(GONE);
+        layoutMenuTopLevel.setVisibility(GONE);
     }
 
     protected void setTitle(String title) {
-        title = "";
+        //title = "";
 
         if(titleTextView != null) titleTextView.setText(title);
         if(title.equals("")) titleTextView.setVisibility(INVISIBLE);
@@ -79,9 +103,15 @@ public class CustomMenu extends LinearLayout implements IMenuListener {
         View vPos0 = rv.getLayoutManager().findViewByPosition(0);
         if(vPos0 != null) vPos0.requestFocus();
 
+        layoutMenuTopLevel.setVisibility(VISIBLE);
+        layoutMenuTopLevel.bringToFront();
+
         Boolean noTitle = titleTextView.getText().equals("");
 
         LinearLayout.LayoutParams lllp = (LinearLayout.LayoutParams) layoutInner.getLayoutParams();
+
+        rv.requestFocus();
+
         if(noTitle) {
             lllp.topMargin = -titleHeight + 6;
         }
@@ -108,7 +138,7 @@ public class CustomMenu extends LinearLayout implements IMenuListener {
                 bottomMargin = 0;
         }
 
-        FrameLayout.LayoutParams llp = (FrameLayout.LayoutParams) layout.getLayoutParams();
+        LinearLayout.LayoutParams llp = (LinearLayout.LayoutParams) layout.getLayoutParams();
         llp.topMargin = topMargin;
         llp.bottomMargin = bottomMargin;
         layout.setLayoutParams(llp);
@@ -131,6 +161,7 @@ public class CustomMenu extends LinearLayout implements IMenuListener {
 
     public void onMenuItemClick(int position, String data) {
         mainListener.displayAlert("test", data);
+        hide();
     }
 
     @Override

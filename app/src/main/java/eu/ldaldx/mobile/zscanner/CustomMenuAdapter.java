@@ -39,7 +39,7 @@ public class CustomMenuAdapter extends RecyclerView.Adapter<CustomMenuAdapter.Vi
     /**
      * Initialize the dataset of the Adapter
      *
-     * @param dataSet String[] containing the data to populate views to be used
+     * @param cmeArray ArrayList<CustomMenuEntry> containing the data to populate views to be used
      * by RecyclerView
      */
     public CustomMenuAdapter(ArrayList<CustomMenuEntry> cmeArray, IMenuListener listener) {
@@ -114,9 +114,12 @@ public class CustomMenuAdapter extends RecyclerView.Adapter<CustomMenuAdapter.Vi
                         case KeyEvent.KEYCODE_9:
                             numeric = 9;
                             break;
+                        case KeyEvent.KEYCODE_DPAD_LEFT:
                         case KeyEvent.KEYCODE_DPAD_UP:
                             menuListener.onMenuItemClickUp(position);
                             return true;
+                        case KeyEvent.KEYCODE_TAB:
+                        case KeyEvent.KEYCODE_DPAD_RIGHT:
                         case KeyEvent.KEYCODE_DPAD_DOWN:
                             menuListener.onMenuItemClickDown(position);
                             return true;

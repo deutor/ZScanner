@@ -1,58 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/mainMenuWithTitleExt"
+    android:id="@+id/mainMenuTopLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginTop="80sp"
-    android:layout_marginBottom="80sp"
-    android:layout_marginLeft="20sp"
-    android:layout_marginRight="20sp"
-    android:background="@drawable/menu_external_border"
-    android:clickable="false"
-    android:defaultFocusHighlightEnabled="false"
-    android:divider="@android:drawable/divider_horizontal_dark"
-    android:fadingEdge="horizontal|vertical"
-    android:focusableInTouchMode="false"
-    android:focusedByDefault="false"
-    android:layoutMode="clipBounds"
-    android:orientation="vertical"
-    android:showDividers="middle|beginning|end"
-    android:visibility="visible">
+    android:clickable="true"
+    android:focusableInTouchMode="true"
+    >
 
-        <TextView
-            android:id="@+id/mainMenuTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clickable="false"
-            android:contextClickable="false"
-            android:defaultFocusHighlightEnabled="false"
-            android:gravity="center"
-            android:text="TextView"
-            android:textSize="24sp"
-            tools:visibility="visible" />
-
-        <LinearLayout
-            android:id="@+id/mainMenuWithTitleInt"
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:id="@+id/mainMenuWithTitleExt"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginLeft="5sp"
-            android:layout_marginRight="5sp"
-            android:layout_marginBottom="5sp"
-            android:background="@drawable/menu_internal_border"
-            android:backgroundTint="#FFFFFF"
-            android:clickable="false"
-            android:contextClickable="false"
-            android:defaultFocusHighlightEnabled="false"
+            android:layout_marginLeft="20sp"
+            android:layout_marginTop="80sp"
+            android:layout_marginRight="20sp"
+            android:layout_marginBottom="80sp"
+            android:background="@drawable/menu_external_border"
+            android:divider="@android:drawable/divider_horizontal_dark"
+            android:fadingEdge="horizontal|vertical"
+            android:focusableInTouchMode="false"
+            android:focusedByDefault="false"
+            android:layoutMode="clipBounds"
             android:orientation="vertical"
-            tools:visibility="visible">
+            android:showDividers="middle|beginning|end"
+            android:visibility="visible">
 
-                <androidx.recyclerview.widget.RecyclerView
+                <TextView
+                    android:id="@+id/mainMenuTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clickable="false"
+                    android:contextClickable="false"
+                    android:defaultFocusHighlightEnabled="false"
+                    android:gravity="center"
+                    android:text="TextView"
+                    android:textSize="24sp"
+                    tools:visibility="visible" />
+
+                <LinearLayout
+                    android:id="@+id/mainMenuWithTitleInt"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:id="@+id/reclerView">
-                </androidx.recyclerview.widget.RecyclerView>
+                    android:layout_marginLeft="5sp"
+                    android:layout_marginRight="5sp"
+                    android:layout_marginBottom="5sp"
+                    android:background="@drawable/menu_internal_border"
+                    android:backgroundTint="#FFFFFF"
+                    android:orientation="vertical"
+                    tools:visibility="visible">
 
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/reclerView"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"></androidx.recyclerview.widget.RecyclerView>
+
+                </LinearLayout>
         </LinearLayout>
-</LinearLayout>
 
+</LinearLayout>

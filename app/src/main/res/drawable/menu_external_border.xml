@@ -14,6 +14,5 @@ android:shape="rectangle" >
         android:topRightRadius="7dp"
         />
 
-    <!-- background = light gray-->
-    <solid android:color = "#ffcccccc" ></solid>
+    <solid android:color = "@color/lightGray" ></solid>
 </shape>
