@@ -18,7 +18,9 @@ import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.PopupMenu;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import eu.ldaldx.mobile.zscanner.databinding.ActivityLoginBinding;
@@ -108,23 +110,16 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
         int height = displayMetrics.heightPixels;
         int width = displayMetrics.widthPixels;
 
-
         FrameLayout layout = (FrameLayout) findViewById(R.id.mainLayout);
-
         csMenu = new CustomMenu(layout, layout.getContext(), "Menu główne", this, height);
-
-        csMenu.clear();
-        csMenu.addItem("1 - Lokalizacja", "LOK/lokalizacja.js", false);
-        //csMenu.addItem("2 - Przesunięcia", "PRZ/pzresunięcia.js", false);
-        //csMenu.addItem("3 - Przesunięcia", "PRZ/pzresunięcia.js", false);
-        //csMenu.addItem("4 - Przesunięcia", "PRZ/pzresunięcia.js", false);
-        //csMenu.addItem("4 - Przesunięcia", "PRZ/pzresunięcia.js", false);
-        csMenu.addItem("ESC Koniec pracy", "PRZ/pzresunięcia.js", true);
-        csMenu.show();
-        //csMenu.hide();
-
-
         csBrowser = new CustomBrowser(layout, layout.getContext(), this, width, height);
+
+
+
+
+
+
+
         csBrowser.clear();
         csBrowser.addColumn("Pierwsza", true, 100, false);
         csBrowser.addColumn("Druga", true, 200, false);
@@ -138,7 +133,6 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
         csBrowser.show();
 
 
-
         IntentFilter filter = new IntentFilter();
         filter.addCategory(Intent.CATEGORY_DEFAULT);
         filter.addAction(getResources().getString(R.string.zebra_activity_intent_filter_action));
@@ -149,6 +143,7 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
         btn.setOnClickListener( (v) -> {
             csBrowser.hide();
             csBrowser.clear();
+            csBrowser.setYPositionAndHeight(100, 200);
             csBrowser.addColumn("Pierwsza", true, 100, false);
             csBrowser.addColumn("Druga", true, 200, false);
             csBrowser.addColumn("Trzecia", false, 0, false);
@@ -159,7 +154,40 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
                 csBrowser.addRow("1", "uucol2:" + Integer.toString(i), "col3:" + Integer.toString(i), "col4:" + Integer.toString(i));
             }
             csBrowser.show();
+            csBrowser.setEnabled(true);
         });
+
+/* 320x460 */
+        CustomLabel csLabel = new CustomLabel(this, 300, 30, 200, 10);
+        layout.addView(csLabel);
+        csLabel.setText("Skanuj lokalizację:");
+
+        CustomEdit csEdit = new CustomEdit(this, 350, 30, 0, 0);
+        layout.addView(csEdit);
+        csEdit.setText("Skanuj lokalizację z:");
+
+
+        CustomEdit csEdit2 = new CustomEdit(this, 120, 30, 330, 20);
+        layout.addView(csEdit2);
+        csEdit2.setText("Skanuj lokalizację do:");
+
+        csEdit2.bringToFront();
+
+        csMenu.clear();
+        csMenu.setTitle("Menu");
+        csMenu.addItem("1 - Lokalizacja", "LOK/lokalizacja.js", false);
+        csMenu.addItem("2 - Przesunięcia", "PRZ/pzresunięcia.js", false);
+        csMenu.addItem("3 - Przesunięcia", "PRZ/pzresunięcia.js", false);
+        csMenu.addItem("4 - Przesunięcia", "PRZ/pzresunięcia.js", false);
+        //csMenu.addItem("4 - Przesunięcia", "PRZ/pzresunięcia.js", false);
+        csMenu.addItem("ESC Koniec pracy", "PRZ/pzresunięcia.js", true);
+        csMenu.bringToFront();
+        csMenu.show();
+
+//        csMenu.hide();
+
+
+
 
         /*
         FrameLayout layout = (FrameLayout) findViewById(R.id.mainLayout);
