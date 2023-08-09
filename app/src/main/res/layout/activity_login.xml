@@ -8,6 +8,16 @@
     android:layout_gravity="top|left"
     tools:context=".LoginActivity">
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
+        app:title="WMS logowanie" />
+
+
     <Button
         android:id="@+id/loginButton"
         android:layout_width="wrap_content"
@@ -58,14 +68,5 @@
             android:singleLine="true" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:minHeight="?attr/actionBarSize"
-        android:theme="?attr/actionBarTheme"
-        app:subtitle="lasd"
-        app:title="WMS logowanie" />
 
 </FrameLayout>
