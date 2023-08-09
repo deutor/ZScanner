@@ -5,6 +5,7 @@ import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -58,6 +59,8 @@ public class CustomBrowser extends LinearLayout implements IBrowserListener {
     private FrameLayout parentLayout;
     private LinearLayout layout;
 
+    private LinearLayout layoutInt;
+
     private final Drawable background;
 
     private int mainHeight;
@@ -86,6 +89,8 @@ public class CustomBrowser extends LinearLayout implements IBrowserListener {
         this.totalWidth = 0;
 
         layout = (LinearLayout) parentLayout.findViewById(R.id.browserWithTitleExt);
+        layoutInt = (LinearLayout) parentLayout.findViewById(R.id.browserWithTitleInt);
+
         //layoutInner = (LinearLayout) parentLayout.findViewById(R.id.browserWithTitleInt);
         background = parentLayout.getResources().getDrawable(R.drawable.browser_selection_bar, null);
 
@@ -104,6 +109,12 @@ public class CustomBrowser extends LinearLayout implements IBrowserListener {
             rv.setAdapter(cba);
         }
 
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+        cba.isClickable = enabled;
     }
 
     protected void hide() {
@@ -167,6 +178,16 @@ public class CustomBrowser extends LinearLayout implements IBrowserListener {
             }
         }
     }
+
+    public void setYPositionAndHeight(int y, int height) {
+        FrameLayout.LayoutParams fllp = (FrameLayout.LayoutParams)layout.getLayoutParams();
+
+        fllp.height = height;
+        fllp.topMargin = y;
+        layout.setLayoutParams(fllp);
+
+    }
+
 
 
     @SuppressWarnings("unused")

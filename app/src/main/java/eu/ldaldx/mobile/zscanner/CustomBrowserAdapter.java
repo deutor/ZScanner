@@ -19,6 +19,7 @@ public class CustomBrowserAdapter extends RecyclerView.Adapter<CustomBrowserAdap
     private final ArrayList<CustomBrowserEntry> localCbeEntries;
     private final IBrowserListener browserListener;
 
+    public boolean isClickable = true;
 
     /**
      * Provide a reference to the type of views that you are using
@@ -103,6 +104,7 @@ public class CustomBrowserAdapter extends RecyclerView.Adapter<CustomBrowserAdap
         }
 
         row.setOnKeyListener((v, keycode, event) -> {
+            if(!isClickable) return false;
 
             if (event.getAction() == KeyEvent.ACTION_DOWN) {
                 switch (keycode) {
@@ -118,7 +120,13 @@ public class CustomBrowserAdapter extends RecyclerView.Adapter<CustomBrowserAdap
             return false;
         });
 
-        row.setOnClickListener(v -> browserListener.onBrowserItemClick( position, Integer.toString(position) ));
+        row.setOnClickListener(v -> {
+                if(!isClickable) return;
+                browserListener.onBrowserItemClick(position, Integer.toString(position));
+            }
+        );
+
+
     }
 
     // Return the size of your dataset (invoked by the layout manager)

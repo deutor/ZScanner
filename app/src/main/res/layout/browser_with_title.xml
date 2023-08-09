@@ -82,7 +82,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:clickable="false"
-
+            android:id="@+id/browserWithTitleInt"
             android:focusable="false"
             android:focusableInTouchMode="false"
 
