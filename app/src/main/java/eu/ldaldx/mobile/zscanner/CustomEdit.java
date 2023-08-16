@@ -2,28 +2,26 @@ package eu.ldaldx.mobile.zscanner;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.util.TypedValue;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 
 import androidx.appcompat.widget.AppCompatEditText;
 
-import com.google.android.material.textfield.TextInputEditText;
-
-public class CustomEdit extends AppCompatEditText {
+public class CustomEdit extends AppCompatEditText implements IView {
 
     private Drawable background;
     private Drawable backgroundSelected;
     public CustomEdit(Context context) {
         super(context);
-        setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
+        setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
 
         setSingleLine();
-        setPadding(2 ,2 ,2 ,2);
+        setPadding(2 ,1 ,2 ,1);
+        setHighlightColor(Color.blue(255));
+
         setLongClickable(false);
         background = getResources().getDrawable(R.drawable.customedit_border, null);
         backgroundSelected= getResources().getDrawable(R.drawable.customedit_selected, null);
@@ -32,10 +30,10 @@ public class CustomEdit extends AppCompatEditText {
     public CustomEdit(Context context, int width, int height, int row, int col) {
         this(context);
 
-        FrameLayout.LayoutParams frlp = new FrameLayout.LayoutParams( convertPixelsToDp(context, width), convertPixelsToDp(context, height));
-        frlp.topMargin = convertPixelsToDp(context,  row);
-        frlp.leftMargin = convertPixelsToDp(context,  col);
-        setHint("Skanuj lokalizację");
+        FrameLayout.LayoutParams frlp = new FrameLayout.LayoutParams( width, height);
+        frlp.topMargin = row;
+        frlp.leftMargin = col;
+        setHint("");
         setLayoutParams(frlp);
 
         setOnFocusChangeListener(new OnFocusChangeListener() {
@@ -52,6 +50,12 @@ public class CustomEdit extends AppCompatEditText {
 
     }
 
+    public void setFocused() {
+            super.requestFocus();
+            super.requestFocusFromTouch();
+    }
+
+
     public void setBoldItalic(boolean bold, boolean italic) {
         if(bold & italic) setTypeface(null, Typeface.BOLD_ITALIC);
         else {
@@ -61,13 +65,5 @@ public class CustomEdit extends AppCompatEditText {
             } //not bold
         } // not bold&italic
     }
-
-
-    private int convertPixelsToDp(Context context, int pixels) {
-        float screenPixelDensity = context.getResources().getDisplayMetrics().density;
-        float dpValue = pixels * screenPixelDensity;
-        return Math.round(dpValue);
-    }
-
 
 }

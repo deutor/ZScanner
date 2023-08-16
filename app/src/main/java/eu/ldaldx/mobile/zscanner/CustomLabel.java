@@ -7,41 +7,29 @@ import android.widget.FrameLayout;
 
 import androidx.appcompat.widget.AppCompatTextView;
 
-public class CustomLabel extends AppCompatTextView {
-
-
-        /*
-        FrameLayout layout = (FrameLayout) findViewById(R.id.mainLayout);
-
-
-        TextView dynamicTextView = new TextView(this);
-
-
-        FrameLayout.LayoutParams frlp = new FrameLayout.LayoutParams(480,190);
-        frlp.leftMargin = 0;
-        frlp.topMargin = 10;
-
-        dynamicTextView.setLayoutParams(frlp);
-        dynamicTextView.setTextColor(Color.RED);
-        dynamicTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 20);
-        dynamicTextView.setText("NewYork is very large city located in United States Of America");
-
-        layout.addView(dynamicTextView);
-*/
-
+public class CustomLabel extends AppCompatTextView implements IView{
     public CustomLabel(Context context) {
         super(context);
         setClickable(false);
         setFocusable(false);
         setFocusableInTouchMode(false);
-        setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
+        setTextSize(TypedValue.COMPLEX_UNIT_DIP, 17);
     }
+
+
+    public void setFocused() {
+
+        super.requestFocus();
+        super.requestFocusFromTouch();
+    }
+
+
     public CustomLabel(Context context, int width, int height, int row, int col) {
         this(context);
 
-        FrameLayout.LayoutParams frlp = new FrameLayout.LayoutParams( convertPixelsToDp(context, width), convertPixelsToDp(context, height));
-        frlp.topMargin = convertPixelsToDp(context, row);
-        frlp.leftMargin = convertPixelsToDp(context, col);
+        FrameLayout.LayoutParams frlp = new FrameLayout.LayoutParams( width, height);
+        frlp.topMargin = row;
+        frlp.leftMargin = col;
         setLayoutParams(frlp);
     }
 
@@ -54,12 +42,5 @@ public class CustomLabel extends AppCompatTextView {
             } //not bold
         } // not bold&italic
     }
-
-    private int convertPixelsToDp(Context context, int pixels) {
-        float screenPixelDensity = context.getResources().getDisplayMetrics().density;
-        float dpValue = pixels * screenPixelDensity;
-        return Math.round(dpValue);
-    }
-
 
 }
