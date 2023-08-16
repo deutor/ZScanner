@@ -2,8 +2,18 @@
     <string name="app_name">ZScanner</string>
     <string name="loginBladSerwera">Błąd serwera</string>
     <string name="loginBladPolaczenia">Błąd połączenia</string>
-    <string name="zebra_activity_intent_filter_action">eu.ldaldx</string>
+    <string name="zebra_activity_intent_filter_action">eu.ldaldx.mobile.zscanner</string>
     <string name="zebra_datawedge_intent_key_source">com.symbol.datawedge.source</string>
     <string name="zebra_datawedge_intent_key_data">com.symbol.datawedge.data_string</string>
     <string name="zebra_datawedge_intent_key_label_type">com.symbol.datawedge.label_type</string>
+    <string name="zscanner_profile_key">eu.ldaldx.mobile.zscanner.PREFERENCE_FILE_KEY</string>
+    <string name="zscanner_preference_server_name">server_name</string>
+    <string name="zscanner_preference_server_adress">server_address</string>
+    <string name="zscanner_preference_server_port">server_port</string>
+    <string name="login_loginButton_text">Rozpocznij pracę</string>
+    <string name="login_txtServer_hint">Serwer</string>
+    <string name="login_editUser_text">Użytkownik</string>
+    <string name="login_editPassword_hint">Hasło</string>
+
+
 </resources>

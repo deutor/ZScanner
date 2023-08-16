@@ -33,6 +33,7 @@ public final class Zebra_DWInterface {
     public static final String DATAWEDGE_SEND_SET_SOFT_SCAN = "com.symbol.datawedge.api.SOFT_SCAN_TRIGGER";
 
     public static final String PROFILE_INTENT_START_ACTIVITY = "0";
+    public static final String PROFILE_INTENT_BROADCAST = "2";
 
     public static final void sendCommandString(Context context, String command, String parameter, boolean sendResult) {
         Intent dwIntent = new Intent();
@@ -66,7 +67,9 @@ public final class Zebra_DWInterface {
         barcodeProps.putString("scanner_selection", "auto");
         barcodeProps.putString("decoder_ean8", "true" );
         barcodeProps.putString("decoder_ean13", "true" );
-        barcodeProps.putString("decoder_code39", "true" );
+        barcodeProps.putString("decoder_gs1_datamatrix", "true" );
+        barcodeProps.putString("decoder_gs1_qrcode", "true" );
+
         barcodeProps.putString("decoder_code128", "true");
 
         barcodeConfig.putBundle("PARAM_LIST", barcodeProps);
@@ -111,7 +114,7 @@ public final class Zebra_DWInterface {
         Bundle intentProps = new Bundle();
         intentProps.putString("intent_output_enabled", "true");
         intentProps.putString("intent_action", context.getResources().getString(R.string.zebra_activity_intent_filter_action));
-        intentProps.putString("intent_delivery", PROFILE_INTENT_START_ACTIVITY);
+        intentProps.putString("intent_delivery", PROFILE_INTENT_BROADCAST);
         intentConfig.putBundle("PARAM_LIST", intentProps);
         profileConfig.putBundle("PLUGIN_CONFIG", intentConfig);
         sendCommandBundle(context, DATAWEDGE_SEND_SET_CONFIG, profileConfig);
@@ -126,6 +129,8 @@ public final class Zebra_DWInterface {
         bundleKSOutConfig.putBundle("PARAM_LIST", bundleKSParams);
         profileConfig.putBundle("PLUGIN_CONFIG", bundleKSOutConfig);
         sendCommandBundle(context, DATAWEDGE_SEND_SET_CONFIG, profileConfig);
+
+        setConfigForDecoder(context, "ZScanner");
     }
 
 }
