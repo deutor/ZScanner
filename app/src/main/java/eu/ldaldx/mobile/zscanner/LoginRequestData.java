@@ -11,6 +11,8 @@ public class LoginRequestData implements Serializable {
   @Json(name = "password")
   private String password;
 
+  @Json(name = "userToken")
+  private String userToken;
   private String serverType;
 
   @Json(name = "scanner")
@@ -72,4 +74,13 @@ public class LoginRequestData implements Serializable {
   public void setUser(String user) {
     this.user = user;
   }
+
+  public String getUserToken() {
+    return userToken;
+  }
+
+  public void setUserToken(String userToken) {
+    this.userToken = userToken;
+  }
+
 }

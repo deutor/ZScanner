@@ -12,6 +12,10 @@ public class LoginResponseData implements Serializable{
     @Json(name = "sessionID")
     private String sessionID;
 
+    @Json(name = "userID")
+    private String userID;
+
+
     @Json(name = "message")
     private String message;
 
@@ -34,6 +38,9 @@ public class LoginResponseData implements Serializable{
         this.sessionID = sessionID;
     }
 
+    public String getUserID() {
+        return this.userID;
+    }
 
     public String getMessage() {
         return this.message;
