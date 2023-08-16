@@ -9,34 +9,60 @@
     tools:context=".MainActivity">
 
 
+
     <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar2"
+                android:id="@+id/toolbar2"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:background="@color/bluish"
+
+                android:minHeight="?attr/actionBarSize"
+                android:theme="?attr/actionBarTheme"
+
+                app:title="Lokalizacja"
+                app:titleTextColor="#FFFFFF">
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/buttonForward"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="right"
+                    android:clickable="true"
+                    android:gravity="right"
+                    android:background="#7BBE2E"
+                    app:backgroundTint="#7BBE2E"
+                    app:srcCompat="@drawable/baseline_arrow_forward_ios_24" />
+
+
+            </androidx.appcompat.widget.Toolbar>
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:minHeight="?attr/actionBarSize"
-        android:theme="?attr/actionBarTheme" />
+        android:layout_height="match_parent">
+
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+
+
         android:id = "@+id/mainLayout"
         >
 
         <Button
-        android:id="@+id/button"
+        android:id="@+id/button33"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:text="Button" />
+        android:layout_marginTop="380dp"
+            android:layout_marginLeft="270dp"
+        android:text="Tst" />
 
         <include layout="@layout/browser_with_title"/>
 
-        <include layout="@layout/menu_with_title"/>
 
+        <include layout="@layout/menu_with_title"/>
     </FrameLayout>
 
-
+</ScrollView>
 
 
 

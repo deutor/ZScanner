@@ -4,6 +4,7 @@
     <color name="white">#FFFFFFFF</color>
     <color name="transparent">#00000000</color>
     <color name="lightGray">#d3d3d3</color>
+    <color name="bluish">#a3d1e3</color>
     <color name="lightYellow">#FFFFFFCF</color>
     <color name="red">#FF0000</color>
 </resources>

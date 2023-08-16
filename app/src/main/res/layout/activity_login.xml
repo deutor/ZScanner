@@ -5,28 +5,65 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id = "@+id/loginLayout"
-    android:layout_gravity="top|left"
     tools:context=".LoginActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
+        android:background="@color/bluish"
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme"
         app:title="WMS logowanie" />
 
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/txtServer_title"
+        android:layout_marginStart = "0dp"
+        android:layout_marginTop = "70dp"
+        android:layout_width="match_parent"
+        android:clickable="false"
+        android:focusableInTouchMode="false"
+        android:focusable="false"
+        app:expandedHintEnabled="true"
+        android:layout_height="wrap_content">
 
-    <Button
-        android:id="@+id/loginButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="170dp"
-    android:layout_marginTop="358dp"
-        android:text="Login"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/txtServer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:focusedByDefault="false"
+            android:focusable="false"
+            android:minWidth="320dp"
+            android:hint="@string/login_txtServer_hint"
+            android:paddingBottom="6dp"
+            android:paddingTop="4dp"
+            android:textSize="28dp"
+            android:maxLines="1"
+            android:singleLine="true" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+
+
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_marginStart = "0dp"
+        android:layout_marginTop = "150dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editUser"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="320dp"
+            android:focusedByDefault="true"
+            android:hint="@string/login_editUser_text"
+            android:maxLines="1"
+            android:singleLine="true" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+
 
     <com.google.android.material.textfield.TextInputLayout
         app:endIconMode = "password_toggle"
@@ -41,32 +78,33 @@
         <com.google.android.material.textfield.TextInputEditText
 
             android:id="@+id/editPassword"
-            android:layout_width="match_parent"
+            android:minWidth="320dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:width="170dp"
             android:focusedByDefault="false"
-            android:hint="Hasło"
+            android:hint="@string/login_editPassword_hint"
             android:inputType="textPassword"
-            android:keyboardNavigationCluster="false"
-            android:password="false"
             android:singleLine="true" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_marginStart = "0dp"
-        android:layout_marginTop = "150dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+    <Button
+        android:id="@+id/loginButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="358dp"
+        android:text="@string/login_loginButton_text"
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/editUser"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:focusedByDefault="true"
-            android:hint="Użytkownik"
-            android:maxLines="1"
-            android:singleLine="true" />
-    </com.google.android.material.textfield.TextInputLayout>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="270dp"
+
+        android:text="Tst" />
 
 
 </FrameLayout>
