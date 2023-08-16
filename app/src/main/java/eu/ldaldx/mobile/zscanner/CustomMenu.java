@@ -19,7 +19,7 @@ import java.util.HashMap;
 
 
 
-public class CustomMenu extends LinearLayout implements IMenuListener {
+public class CustomMenu extends LinearLayout implements IMenuListener, IView {
 
     private FrameLayout parentLayout;
     private FrameLayout userLayout;
@@ -81,6 +81,9 @@ public class CustomMenu extends LinearLayout implements IMenuListener {
                     hide();
             }
         };
+    }
+    public void setFocused() {
+        super.requestFocus();
     }
 
 
@@ -168,10 +171,14 @@ public class CustomMenu extends LinearLayout implements IMenuListener {
     public void onMenuItemClickUp(int position) {
         int numChild = rv.getChildCount();
 
-        position = position - 1;
-        if(position < 0) position = numChild - 1;
-        // scrollToPosition does not work - use requestFocus to change position, getChildAt requires item to be in viewport or it will return null
-        rv.getLayoutManager().findViewByPosition(position).requestFocus();
+        if(position < 0) rv.getLayoutManager().findViewByPosition(0).requestFocus();
+        else {
+
+            position = position - 1;
+            if (position < 0) position = numChild - 1;
+            // scrollToPosition does not work - use requestFocus to change position, getChildAt requires item to be in viewport or it will return null
+            rv.getLayoutManager().findViewByPosition(position).requestFocus();
+        }
     }
 
     @Override

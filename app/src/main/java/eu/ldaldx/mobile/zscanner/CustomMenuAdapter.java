@@ -66,6 +66,8 @@ public class CustomMenuAdapter extends RecyclerView.Adapter<CustomMenuAdapter.Vi
 
         tv = viewHolder.getMenuItem();
 
+        if(position == 1) menuListener.onMenuItemClickUp(-1);
+
 /*
         LinearLayout.LayoutParams lllp = (LinearLayout.LayoutParams)tv.getLayoutParams();
 
