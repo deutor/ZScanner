@@ -1,5 +1,7 @@
 package eu.ldaldx.mobile.zscanner;
 
+import static android.view.View.TEXT_ALIGNMENT_VIEW_START;
+
 import android.annotation.SuppressLint;
 
 import android.view.KeyEvent;
@@ -19,7 +21,15 @@ public class CustomBrowserAdapter extends RecyclerView.Adapter<CustomBrowserAdap
     private final ArrayList<CustomBrowserEntry> localCbeEntries;
     private final IBrowserListener browserListener;
 
-    public boolean isClickable = true;
+
+    @Override
+    public void onViewAttachedToWindow(@NonNull ViewHolder holder) {
+        super.onViewAttachedToWindow(holder);
+
+        if(holder.getAdapterPosition() == 0) {
+            browserListener.onBrowserItemClickUp(-1);
+        }
+    }
 
     /**
      * Provide a reference to the type of views that you are using
@@ -85,6 +95,7 @@ public class CustomBrowserAdapter extends RecyclerView.Adapter<CustomBrowserAdap
 
         CustomBrowserEntry cbe = localCbeEntries.get(position);
 
+
         row = viewHolder.row;
 
         for(int i = 0; i<4;i++) {
@@ -94,18 +105,24 @@ public class CustomBrowserAdapter extends RecyclerView.Adapter<CustomBrowserAdap
             if(textViewColumn != null) {
                 textViewColumn.setWidth(cbe.getColumnWidth(nthColumn));
                 if (cbe.isColumnVisible(nthColumn)) {
+                    textViewColumn.setText(cbe.getColumnValue(nthColumn));
                     textViewColumn.setVisibility(View.VISIBLE);
                 } else {
+                    textViewColumn.setText("");
                     textViewColumn.setVisibility(View.INVISIBLE);
                 }
-
-                textViewColumn.setText(cbe.getColumnValue(nthColumn));
-            }
+                if(cbe.getAlign(nthColumn).equals("right")) {
+                    textViewColumn.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_END);
+                    textViewColumn.setGravity(View.TEXT_ALIGNMENT_VIEW_END);
+                }
+                else {
+                    textViewColumn.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
+                    textViewColumn.setGravity(View.TEXT_ALIGNMENT_VIEW_START);
+                }
+            } // textViewColumn != null
         }
 
         row.setOnKeyListener((v, keycode, event) -> {
-            if(!isClickable) return false;
-
             if (event.getAction() == KeyEvent.ACTION_DOWN) {
                 switch (keycode) {
                     case KeyEvent.KEYCODE_DPAD_UP:
@@ -114,6 +131,11 @@ public class CustomBrowserAdapter extends RecyclerView.Adapter<CustomBrowserAdap
                     case KeyEvent.KEYCODE_DPAD_DOWN:
                         browserListener.onBrowserItemClickDown(position);
                         return true;
+                    case KeyEvent.KEYCODE_ENTER:
+                    case KeyEvent.KEYCODE_NUMPAD_ENTER:
+                        browserListener.onBrowserEnterClicked();
+                        return true;
+
                 } // switch
 
             } // key down
@@ -121,7 +143,7 @@ public class CustomBrowserAdapter extends RecyclerView.Adapter<CustomBrowserAdap
         });
 
         row.setOnClickListener(v -> {
-                if(!isClickable) return;
+                //v.requestFocusFromTouch();
                 browserListener.onBrowserItemClick(position, Integer.toString(position));
             }
         );

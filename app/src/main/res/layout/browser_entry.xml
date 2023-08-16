@@ -8,17 +8,19 @@
     >
     <TableLayout
         android:layout_width="match_parent"
-
-        android:layout_height="26dp"
+android:showDividers="middle"
+        android:layout_height="wrap_content"
         android:orientation="horizontal">
 
 
         <TableRow
-
+android:showDividers="middle"
+            android:divider="@color/black"
             android:focusable="true"
             android:defaultFocusHighlightEnabled="true"
             android:clickable="true"
             android:id="@+id/browserRow"
+
             >
             <TextView
                 android:id="@+id/txtBrowserCol1"
@@ -28,7 +30,9 @@
                 android:focusable="false"
                 android:focusableInTouchMode="false"
                 android:text="column1"
-                android:textSize="18dp"></TextView>
+                android:paddingBottom="1dp"
+
+                android:textSize="15dp"></TextView>
 
             <TextView
                 android:id="@+id/txtBrowserCol2"
@@ -38,27 +42,27 @@
                 android:focusable="false"
                 android:focusableInTouchMode="false"
                 android:text="column2"
-                android:textSize="18dp"></TextView>
+
+                android:textSize="15dp"></TextView>
 
             <TextView
                 android:id="@+id/txtBrowserCol3"
-
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:focusable="false"
                 android:focusableInTouchMode="false"
                 android:text="column3"
-                android:textSize="18dp"></TextView>
+                android:textSize="15dp"></TextView>
 
             <TextView
                 android:id="@+id/txtBrowserCol4"
-
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:focusable="false"
                 android:focusableInTouchMode="false"
                 android:text="column4"
-                android:textSize="18dp"></TextView>
+                android:paddingBottom="1dp"
+                android:textSize="15dp"></TextView>
         </TableRow>
     </TableLayout>
 </HorizontalScrollView>
