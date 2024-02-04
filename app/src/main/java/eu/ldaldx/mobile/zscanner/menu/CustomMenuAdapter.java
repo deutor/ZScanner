@@ -1,22 +1,34 @@
-package eu.ldaldx.mobile.zscanner;
+package eu.ldaldx.mobile.zscanner.menu;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+
+import eu.ldaldx.mobile.zscanner.R;
 
 
 public class CustomMenuAdapter extends RecyclerView.Adapter<CustomMenuAdapter.ViewHolder> {
     private ArrayList<CustomMenuEntry> localCmeEntries;
     private IMenuListener menuListener;
+
+
+    @Override
+    public void onViewAttachedToWindow(@NonNull CustomMenuAdapter.ViewHolder holder) {
+        super.onViewAttachedToWindow(holder);
+
+        if(holder.getAdapterPosition() == 0) {
+            menuListener.onMenuItemClickUp(-1);
+        }
+    }
 
     /**
      * Provide a reference to the type of views that you are using
@@ -24,11 +36,14 @@ public class CustomMenuAdapter extends RecyclerView.Adapter<CustomMenuAdapter.Vi
      */
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private final TextView menuEntry;
+        private final TableRow row;
 
         public ViewHolder(View view) {
             super(view);
             // Define click listener for the ViewHolder's View
             menuEntry = (TextView) view.findViewById(R.id.txtMenuEntry);
+
+            row = view.findViewById(R.id.menuRow);
         }
 
         public TextView getMenuItem() {
@@ -45,6 +60,7 @@ public class CustomMenuAdapter extends RecyclerView.Adapter<CustomMenuAdapter.Vi
     public CustomMenuAdapter(ArrayList<CustomMenuEntry> cmeArray, IMenuListener listener) {
         localCmeEntries = cmeArray;
         this.menuListener = listener;
+
     }
 
     // Create new views (invoked by the layout manager)
@@ -63,32 +79,28 @@ public class CustomMenuAdapter extends RecyclerView.Adapter<CustomMenuAdapter.Vi
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, final int position) {
         TextView tv;
-
+        TableRow row;
         tv = viewHolder.getMenuItem();
 
-        if(position == 1) menuListener.onMenuItemClickUp(-1);
-
-/*
-        LinearLayout.LayoutParams lllp = (LinearLayout.LayoutParams)tv.getLayoutParams();
-
-        lllp.width = 200;
-        tv.setVisibility(View.INVISIBLE);
-        */
+        row = viewHolder.row;
 
         // Get element from your dataset at this position and replace the
         // contents of the view with that element
         tv.setText( localCmeEntries.get(position).getMenuEntry());
 
-        tv.setOnClickListener(v -> {
-            menuListener.onMenuItemClick( position, Integer.toString(position) );
+        row.setOnClickListener(v -> {
+            menuListener.onMenuItemClick( position, localCmeEntries.get(position).getAction(), localCmeEntries.get(position).getActionArgs() );
         });
 
-        tv.setOnKeyListener( new View.OnKeyListener(){
+        row.setOnKeyListener( new View.OnKeyListener(){
             @Override
             public boolean onKey(View v, int keycode, KeyEvent event) {
-                int numeric = 0;
+                int numeric = -1;
                 if(event.getAction() == KeyEvent.ACTION_DOWN) {
                     switch(keycode) {
+                        case KeyEvent.KEYCODE_0:
+                            numeric = 0;
+                            break;
                         case KeyEvent.KEYCODE_1:
                             numeric = 1;
                             break;
@@ -125,9 +137,18 @@ public class CustomMenuAdapter extends RecyclerView.Adapter<CustomMenuAdapter.Vi
                         case KeyEvent.KEYCODE_DPAD_DOWN:
                             menuListener.onMenuItemClickDown(position);
                             return true;
+
+                        case KeyEvent.KEYCODE_ENTER:
+                        case KeyEvent.KEYCODE_NUMPAD_ENTER:
+                            menuListener.onMenuItemClick( position, localCmeEntries.get(position).getAction(), localCmeEntries.get(position).getActionArgs() );
+                            return true;
+
+
+                        case KeyEvent.KEYCODE_ESCAPE:
+                            //
                     } // switch
 
-                    if(numeric > 0) {
+                    if(numeric >= 0) {
                         menuListener.onNumericPressed(numeric);
                     }
 

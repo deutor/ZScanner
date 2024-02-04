@@ -1,9 +1,8 @@
-package eu.ldaldx.mobile.zscanner;
-
-import static android.view.View.TEXT_ALIGNMENT_VIEW_START;
+package eu.ldaldx.mobile.zscanner.browser;
 
 import android.annotation.SuppressLint;
 
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +14,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+
+import eu.ldaldx.mobile.zscanner.R;
 
 
 public class CustomBrowserAdapter extends RecyclerView.Adapter<CustomBrowserAdapter.ViewHolder> {
@@ -43,12 +44,12 @@ public class CustomBrowserAdapter extends RecyclerView.Adapter<CustomBrowserAdap
         public ViewHolder(View view) {
             super(view);
 
-            columns[0] = (TextView) view.findViewById(R.id.txtBrowserCol1);
-            columns[1] = (TextView) view.findViewById(R.id.txtBrowserCol2);
-            columns[2] = (TextView) view.findViewById(R.id.txtBrowserCol3);
-            columns[3] = (TextView) view.findViewById(R.id.txtBrowserCol4);
+            columns[0] = view.findViewById(R.id.txtBrowserCol1);
+            columns[1] = view.findViewById(R.id.txtBrowserCol2);
+            columns[2] = view.findViewById(R.id.txtBrowserCol3);
+            columns[3] = view.findViewById(R.id.txtBrowserCol4);
 
-            row = (TableRow) view.findViewById(R.id.browserRow);
+            row = view.findViewById(R.id.browserRow);
         }
 
 
@@ -114,10 +115,18 @@ public class CustomBrowserAdapter extends RecyclerView.Adapter<CustomBrowserAdap
                 if(cbe.getAlign(nthColumn).equals("right")) {
                     textViewColumn.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_END);
                     textViewColumn.setGravity(View.TEXT_ALIGNMENT_VIEW_END);
+                    textViewColumn.setEllipsize(TextUtils.TruncateAt.START);
                 }
                 else {
-                    textViewColumn.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
-                    textViewColumn.setGravity(View.TEXT_ALIGNMENT_VIEW_START);
+                    if (cbe.getAlign(nthColumn).equals("right_mid")) {
+                        textViewColumn.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_END);
+                        textViewColumn.setGravity(View.TEXT_ALIGNMENT_VIEW_END);
+                        textViewColumn.setEllipsize(TextUtils.TruncateAt.MIDDLE);
+                    } else {
+                        textViewColumn.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
+                        textViewColumn.setGravity(View.TEXT_ALIGNMENT_VIEW_START);
+                        textViewColumn.setEllipsize(TextUtils.TruncateAt.END);
+                    }
                 }
             } // textViewColumn != null
         }
@@ -142,11 +151,7 @@ public class CustomBrowserAdapter extends RecyclerView.Adapter<CustomBrowserAdap
             return false;
         });
 
-        row.setOnClickListener(v -> {
-                //v.requestFocusFromTouch();
-                browserListener.onBrowserItemClick(position, Integer.toString(position));
-            }
-        );
+        row.setOnClickListener(v -> browserListener.onBrowserItemClick(position, Integer.toString(position)) );
 
 
     }

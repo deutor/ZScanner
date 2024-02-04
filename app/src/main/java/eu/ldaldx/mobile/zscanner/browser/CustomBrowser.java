@@ -1,18 +1,22 @@
-package eu.ldaldx.mobile.zscanner;
+package eu.ldaldx.mobile.zscanner.browser;
 
 import android.content.Context;
-import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.Objects;
+
+import eu.ldaldx.mobile.zscanner.IMainListener;
+import eu.ldaldx.mobile.zscanner.IView;
+import eu.ldaldx.mobile.zscanner.R;
 
 
 public class CustomBrowser extends LinearLayout implements IBrowserListener, IView {
@@ -59,20 +63,17 @@ public class CustomBrowser extends LinearLayout implements IBrowserListener, IVi
             return column_align;
         }
 
-        public void setColumn_align(String column_align) {
-            this.column_align = column_align;
-        }
     }
 
 
-    private FrameLayout parentLayout;
+
     private LinearLayout layoutExt;
 
-    private LinearLayout layoutInt;
+
 
     private final Drawable background;
 
-    private int mainHeight;
+
     private int parentWidth;
     private View focusedView;
     private String focusedOnGo;
@@ -89,24 +90,23 @@ public class CustomBrowser extends LinearLayout implements IBrowserListener, IVi
     Integer numVisible;
     Integer totalWidth;
 
-    public CustomBrowser(FrameLayout parentLayout, Context context, IMainListener listener, int width, int height) {
+    public CustomBrowser(FrameLayout parentLayout, Context context, IMainListener listener, int parentWidth) {
         super(context);
-        this.parentLayout = parentLayout;
+
         this.mainListener = listener;
-        this.mainHeight = height;
-        this.parentWidth = width;
+
+        this.parentWidth = parentWidth;
         this.numVisible = 0;
         this.totalWidth = 0;
 
-        layoutExt = (LinearLayout) parentLayout.findViewById(R.id.browserWithTitleExt);
-        layoutInt = (LinearLayout) parentLayout.findViewById(R.id.browserWithTitleInt);
+        layoutExt = parentLayout.findViewById(R.id.browserWithTitleExt);
 
-        background = getResources().getDrawable(R.drawable.browser_selection_bar, null);
+        background = ResourcesCompat.getDrawable( getResources(), R.drawable.browser_selection_bar, null);
 
-        columnsTextViews.add( (TextView) parentLayout.findViewById(R.id.txtBrowserCol1_Label ));
-        columnsTextViews.add( (TextView) parentLayout.findViewById(R.id.txtBrowserCol2_Label ));
-        columnsTextViews.add( (TextView) parentLayout.findViewById(R.id.txtBrowserCol3_Label ));
-        columnsTextViews.add( (TextView) parentLayout.findViewById(R.id.txtBrowserCol4_Label ));
+        columnsTextViews.add( parentLayout.findViewById(R.id.txtBrowserCol1_Label ));
+        columnsTextViews.add( parentLayout.findViewById(R.id.txtBrowserCol2_Label ));
+        columnsTextViews.add( parentLayout.findViewById(R.id.txtBrowserCol3_Label ));
+        columnsTextViews.add( parentLayout.findViewById(R.id.txtBrowserCol4_Label ));
 
         cba = new CustomBrowserAdapter(cbeEntries, this);
         rv = parentLayout.findViewById(R.id.reclerBrowserView);
@@ -123,12 +123,12 @@ public class CustomBrowser extends LinearLayout implements IBrowserListener, IVi
         return focusedOnGo;
     }
 
-    protected void hide() {
+    public void hide() {
         layoutExt.setVisibility(INVISIBLE);
         focusedOnGo = "";
     }
 
-    protected void show() {
+    public void show() {
         if(rv!=null) {
             cba.notifyDataSetChanged();
         }
@@ -138,7 +138,7 @@ public class CustomBrowser extends LinearLayout implements IBrowserListener, IVi
 
     public CustomBrowser(Context context) {
         super(context);
-        background = parentLayout.getResources().getDrawable(R.drawable.browser_selection_bar);
+        background = ResourcesCompat.getDrawable( getResources(), R.drawable.browser_selection_bar, null);
     }
 
     public void clear() {
@@ -205,32 +205,6 @@ public class CustomBrowser extends LinearLayout implements IBrowserListener, IVi
     }
 
 
-
-    @SuppressWarnings("unused")
-    public void addRow(String column1) {
-        cbeEntries.add(new CustomBrowserEntry(column1, this));
-    }
-
-    @SuppressWarnings("unused")
-    public void addRow(String column1, String column2) {
-        cbeEntries.add(new CustomBrowserEntry(column1, column2, this));
-    }
-
-    @SuppressWarnings("unused")
-    public void addRow(String column1, String column2, String column3) {
-        cbeEntries.add(new CustomBrowserEntry(column1, column2, column3, this));
-    }
-
-    @SuppressWarnings("unused")
-    public void addRow(String column1, String column2, String column3, String column4) {
-        cbeEntries.add(new CustomBrowserEntry(column1, column2, column3, column4, this));
-    }
-
-    @SuppressWarnings("unused")
-    public void addRow(String column1, String column2, String column3, String column4, String action) {
-        cbeEntries.add(new CustomBrowserEntry(column1, column2, column3, column4, action, this));
-    }
-
     public void addRow(String column1, String column2, String column3, String column4, String onGo, String onValue) {
         cbeEntries.add(new CustomBrowserEntry(column1, column2, column3, column4, onGo, onValue, this));
     }
@@ -283,37 +257,42 @@ public class CustomBrowser extends LinearLayout implements IBrowserListener, IVi
     }
 
     public void setFocused() {
-        if(focusedView != null) focusedView.requestFocus();
+        if(focusedView != null) {
+            focusedView.requestFocus();
+            focusedView.requestFocusFromTouch();
+        }
     }
 
     @Override
     public void onBrowserItemClickUp(int position) {
-        int numChild = rv.getChildCount();
+        int positionToSelect;
 
         if(position == 0) {
             mainListener.moveToPrevTabItem(this);
             return;
         }
 
-        if(position < 0) position = 0;
-        else {
-            position = position - 1;
-            if (position < 0) position = numChild - 1;
-            // scrollToPosition does not work - use requestFocus to change position, getChildAt requires item to be in viewport or it will return null
-        }
+        positionToSelect = position - 1;
+        if(positionToSelect < 0) positionToSelect = 0;
 
         if(focusedView!=null) {
             focusedView.setBackground(null);
         }
 
-        focusedView = rv.getLayoutManager().findViewByPosition(position);
+        if(rv.getLayoutManager() != null) {
+            focusedView = rv.getLayoutManager().findViewByPosition(positionToSelect);
+        }
         if (focusedView != null) {
-            focusedView.requestFocus();
-            focusedView.requestFocusFromTouch();
             focusedView.setBackground(background);
+
+            if(position >= 0) {
+                focusedView.requestFocus();
+                focusedView.requestFocusFromTouch();
+            }
         }
 
-        onValueChanged(position);
+        onValueChanged(positionToSelect);
+        setFocused();
     }
 
     @Override

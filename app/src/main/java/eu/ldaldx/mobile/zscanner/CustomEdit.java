@@ -9,22 +9,22 @@ import android.view.View;
 import android.widget.FrameLayout;
 
 import androidx.appcompat.widget.AppCompatEditText;
+import androidx.core.content.res.ResourcesCompat;
 
 public class CustomEdit extends AppCompatEditText implements IView {
-
-    private Drawable background;
-    private Drawable backgroundSelected;
+    private final Drawable background;
+    private final Drawable backgroundSelected;
     public CustomEdit(Context context) {
         super(context);
-        setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
+        setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
 
         setSingleLine();
         setPadding(2 ,1 ,2 ,1);
         setHighlightColor(Color.blue(255));
 
         setLongClickable(false);
-        background = getResources().getDrawable(R.drawable.customedit_border, null);
-        backgroundSelected= getResources().getDrawable(R.drawable.customedit_selected, null);
+        background = ResourcesCompat.getDrawable(getResources(), R.drawable.customedit_border, null);
+        backgroundSelected= ResourcesCompat.getDrawable(getResources(), R.drawable.customedit_selected, null);
         setBackground(background);
     }
     public CustomEdit(Context context, int width, int height, int row, int col) {
@@ -66,4 +66,7 @@ public class CustomEdit extends AppCompatEditText implements IView {
         } // not bold&italic
     }
 
+    public boolean isReported() {
+        return true;
+    }
 }

@@ -2,20 +2,34 @@ package eu.ldaldx.mobile.zscanner;
 
 import android.content.Context;
 import android.graphics.Typeface;
+import android.text.TextUtils;
 import android.util.TypedValue;
 import android.widget.FrameLayout;
 
 import androidx.appcompat.widget.AppCompatTextView;
 
 public class CustomLabel extends AppCompatTextView implements IView{
+
+    private boolean isReported = false;
+
     public CustomLabel(Context context) {
         super(context);
         setClickable(false);
         setFocusable(false);
         setFocusableInTouchMode(false);
-        setTextSize(TypedValue.COMPLEX_UNIT_DIP, 17);
+        setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
+        setEllipsize(TextUtils.TruncateAt.END);
+        setSingleLine();
     }
 
+
+    public boolean isReported() {
+        return isReported;
+    }
+
+    public void setReported(boolean reported) {
+        isReported = reported;
+    }
 
     public void setFocused() {
 
