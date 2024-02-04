@@ -1,4 +1,4 @@
-package eu.ldaldx.mobile.zscanner;
+package eu.ldaldx.mobile.zscanner.browser;
 
 public interface IBrowserListener {
         void onBrowserItemClick(int position, String data);

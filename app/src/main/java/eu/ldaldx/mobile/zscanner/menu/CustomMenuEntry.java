@@ -1,19 +1,19 @@
-package eu.ldaldx.mobile.zscanner;
+package eu.ldaldx.mobile.zscanner.menu;
 
 public class CustomMenuEntry {
     protected String menuEntry;
     protected String action;
-    protected Boolean localAction;
+    protected String actionArgs;
 
     public CustomMenuEntry() {
     }
 
-    public CustomMenuEntry(String menuEntry, String action, Boolean localAction) {
+    public CustomMenuEntry(String menuEntry, String action, String actionArgs) {
         this();
 
         this.menuEntry = menuEntry;
         this.action    = action;
-        this.localAction = localAction;
+        this.actionArgs = actionArgs;
 
     }
 
@@ -33,11 +33,11 @@ public class CustomMenuEntry {
         this.action = action;
     }
 
-    public Boolean getLocalAction() {
-        return localAction;
+    public String getActionArgs() {
+        return actionArgs;
     }
 
-    public void setLocalAction(Boolean localAction) {
-        this.localAction = localAction;
+    public void setActionArgs(String actionArgs) {
+        this.actionArgs = actionArgs;
     }
 }

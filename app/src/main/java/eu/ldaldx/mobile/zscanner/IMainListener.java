@@ -1,14 +1,14 @@
 package eu.ldaldx.mobile.zscanner;
 
 public interface IMainListener {
-    public void displayAlert(String title, String alert);
-    public void executeMenuAction(String action, Boolean local);
+    void displayAlert(String title, String alert);
+    void executeMenuAction(String action, String actionArgs);
 
-    public void setControlsOnBrowseVC(String setString);
-    public void onBrowserEnterClicked();
+    void setControlsOnBrowseVC(String setString);
+    void onBrowserEnterClicked();
 
-    public Boolean moveToPrevTabItem(IView vw);
-    public Boolean moveToNextTabItem(IView vw);
+    Boolean moveToPrevTabItem(IView vw);
+    Boolean moveToNextTabItem(IView vw);
 }
 
 

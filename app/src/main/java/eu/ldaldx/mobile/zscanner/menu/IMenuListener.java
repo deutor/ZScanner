@@ -1,9 +1,7 @@
-package eu.ldaldx.mobile.zscanner;
-
-import android.view.View;
+package eu.ldaldx.mobile.zscanner.menu;
 
 public interface IMenuListener {
-        void onMenuItemClick(int position, String data);
+        void onMenuItemClick(int position, String action, String actionArgs);
         void onMenuItemClickUp(int position);
         void onMenuItemClickDown(int position);
         void onNumericPressed(int numeric);

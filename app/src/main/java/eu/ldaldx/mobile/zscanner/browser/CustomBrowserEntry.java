@@ -1,4 +1,4 @@
-package eu.ldaldx.mobile.zscanner;
+package eu.ldaldx.mobile.zscanner.browser;
 
 import java.util.ArrayList;
 
@@ -19,16 +19,8 @@ public class CustomBrowserEntry {
         return onGo;
     }
 
-    public void setOnGo(String onGo) {
-        this.onGo = onGo;
-    }
-
     public String getOnValueChanged() {
         return onValueChanged;
-    }
-
-    public void setOnValueChanged(String onValueChanged) {
-        this.onValueChanged = onValueChanged;
     }
 
     private String onGo;
@@ -58,48 +50,6 @@ public class CustomBrowserEntry {
     }
 
     private CustomBrowserEntry() {
-    }
-
-    public CustomBrowserEntry(String column1, CustomBrowser parent) {
-        this();
-        columns.add(new Column(column1));
-        this.parentBrowser = parent;
-    }
-
-    public CustomBrowserEntry(String column1, String column2, CustomBrowser parent) {
-        this();
-        columns.add(new Column(column1));
-        columns.add(new Column(column2));
-        this.parentBrowser = parent;
-    }
-
-    public CustomBrowserEntry(String column1, String column2, String column3, CustomBrowser parent) {
-        this();
-
-        columns.add(new Column(column1));
-        columns.add(new Column(column2));
-        columns.add(new Column(column3));
-        this.parentBrowser = parent;
-    }
-
-    public CustomBrowserEntry(String column1, String column2, String column3, String column4, CustomBrowser parent) {
-        this();
-        columns.add(new Column(column1));
-        columns.add(new Column(column2));
-        columns.add(new Column(column3));
-        columns.add(new Column(column4));
-
-        this.parentBrowser = parent;
-    }
-    
-    public CustomBrowserEntry(String column1, String column2, String column3, String column4, String action, CustomBrowser parent) {
-        this();
-        columns.add(new Column(column1));
-        columns.add(new Column(column2));
-        columns.add(new Column(column3));
-        columns.add(new Column(column4));
-
-        this.parentBrowser = parent;
     }
 
     public CustomBrowserEntry(String column1, String column2, String column3, String column4, String onGo, String onValueChanged, CustomBrowser parent) {
