@@ -66,7 +66,7 @@ public class MainResponseData implements Serializable {
 
   public static class Data implements Serializable {
     @Json(name = "sequence")
-    protected int sequence;
+    private int sequence;
     @Json(name = "column1")
     private String column1;
     @Json(name = "column2")
@@ -86,54 +86,31 @@ public class MainResponseData implements Serializable {
       return this.column1;
     }
 
-    public void setColumn1(String column1) {
-      this.column1 = column1;
-    }
-
     public String getOnGo() {
       return this.ongo;
-    }
-
-    public void setOngo(String ongo) {
-      this.ongo = ongo;
     }
 
     public String getColumn4() {
       return this.column4;
     }
 
-    public void setColumn4(String column4) {
-      this.column4 = column4;
-    }
-
     public String getColumn3() {
       return this.column3;
-    }
-
-    public void setColumn3(String column3) {
-      this.column3 = column3;
     }
 
     public String getColumn2() {
       return this.column2;
     }
 
-    public void setColumn2(String column2) {
-      this.column2 = column2;
-    }
 
     public String getOnvalueChanged() {
       return this.onvalueChanged;
-    }
-
-    public void setOnvalueChanged(String onvalueChanged) {
-      this.onvalueChanged = onvalueChanged;
     }
   }
 
   public static class Browser implements Serializable {
     @Json(name = "sequence")
-    protected Integer sequence;
+    private Integer sequence;
     @Json(name = "width")
     private Integer width;
     @Json(name = "label")
@@ -145,38 +122,25 @@ public class MainResponseData implements Serializable {
       return this.sequence;
     }
 
-    public void setSequence(Integer sequence) {
-      this.sequence = sequence;
-    }
 
     public Integer getWidth() {
       return this.width;
-    }
-
-    public void setWidth(Integer width) {
-      this.width = width;
     }
 
     public String getLabel() {
       return this.label;
     }
 
-    public void setLabel(String label) {
-      this.label = label;
-    }
 
     public String getAlign() {
       return this.align;
     }
 
-    public void setAlign(String align) {
-      this.align = align;
-    }
   }
 
   public static class Action implements Serializable {
     @Json(name = "sequence")
-    protected Integer sequence;
+    private Integer sequence;
 
 
     @Json(name = "type")
@@ -219,101 +183,85 @@ public class MainResponseData implements Serializable {
     @Json(name = "mand")
     private Boolean mandatory;
 
+
+    @Json(name="backaction")
+    private String backAction;
+
+    @Json(name = "align")
+    private String align;
+
+
+    @Json(name = "reported")
+    private boolean isReported;
+
+    public String getBackAction() {
+      return backAction;
+    }
+
     public Integer getSequence() {
       return this.sequence;
     }
 
-    public void setSequence(Integer sequence) {
-      this.sequence = sequence;
+    public String getAlign() {
+      return this.align;
     }
+
+
 
     public String getSubtype() {
       return this.subtype;
     }
 
-    public void setSubtype(String subtype) {
-      this.subtype = subtype;
-    }
 
     public String getType() {
       return this.type;
     }
 
-    public void setType(String type) {
-      this.type = type;
-    }
+
 
     public int getColDP() {
       return convP2DP(col);
     }
 
-    public void setCol(int col) {
-      this.col = col;
-    }
 
     public int getRowDP() {
       return convP2DP(row);
-    }
-
-    public void setRow(int row) {
-      this.row = row;
     }
 
     public String getText() {
       return text;
     }
 
-    public void setText(String text) {
-      this.text = text;
-    }
-
-
     public int getWidthDP() {
       return convP2DP(width);
-    }
-
-    public void setWidth(int width) {
-      this.width = width;
     }
 
     public int getHeightDP() {
       return convP2DP(height);
     }
 
-    public void setHeight(int height) {
-      this.height = height;
-    }
 
     public String getName() {
       return name;
     }
 
-    public void setName(String name) {
-      this.name = name;
-    }
 
     public String getColor() {
       return color;
     }
 
-    public void setColor(String color) {
-      this.color = color;
-    }
 
     public Boolean getBold() {
       return bold;
     }
 
-    public void setBold(Boolean bold) {
-      this.bold = bold;
-    }
 
     public String getOnGo() {
       return onGo;
     }
 
-    public void setOnGo(String onGo) {
-      this.onGo = onGo;
+    public boolean isReported() {
+      return isReported;
     }
 
     public String getOnGS1() {
@@ -328,45 +276,37 @@ public class MainResponseData implements Serializable {
       return mandatory;
     }
 
-    public void setMandatory(Boolean mandatory) {
-      this.mandatory = mandatory;
-    }
   }
 
   public static class Menu implements Serializable {
-    protected Integer sequence;
+    @Json(name="sequence")
+    private Integer sequence;
 
+    @Json(name="action")
     private String action;
 
+    @Json(name="action_args")
+    private String actionArgs;
+
+    @Json(name="label")
     private String label;
+
 
     public Integer getSequence() {
       return this.sequence;
-    }
-
-    public void setSequence(Integer sequence) {
-      this.sequence = sequence;
     }
 
     public String getAction() {
       return this.action;
     }
 
-    public void setAction(String action) {
-      this.action = action;
+    public String getActionArgs() {
+      return actionArgs;
     }
 
     public String getLabel() {
       return this.label;
     }
-
-    public void setLabel(String label) {
-      this.label = label;
-    }
-
-
-
-
   }
 
   static class ActionComparator implements Comparator<Action> {
