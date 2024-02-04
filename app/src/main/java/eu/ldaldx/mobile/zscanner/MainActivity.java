@@ -1,26 +1,34 @@
 package eu.ldaldx.mobile.zscanner;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.text.InputFilter;
+import android.text.InputType;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
-
+import eu.ldaldx.mobile.zscanner.browser.CustomBrowser;
 import eu.ldaldx.mobile.zscanner.databinding.ActivityMainBinding;
+import eu.ldaldx.mobile.zscanner.menu.CustomMenu;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -30,47 +38,29 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
 
     private float screenPixelDensity;
 
-    private int convP2DP(int pixels) {
-        float dpValue = pixels * screenPixelDensity;
-
-
-        return Math.round(dpValue);
-    }
-
+    private String nextAction = "";
+    private String backAction = "";
     FrameLayout frameLayout;
+
+    private Toolbar mainToolbar;
     private ActivityMainBinding binding;
     private CustomMenu csMenu;
     private CustomBrowser csBrowser;
 
+    private GS1_Decoder gs1Decoder = new GS1_Decoder();
     private String userID;
     private String sessionID;
 
-    private HashMap<String,View> listOfViews = new HashMap<>();
-    private HashMap<String,View> wantsGS1 = new HashMap<>();
+    private final HashMap<String,View> listOfViews = new HashMap<>();
+    private final HashMap<String,View> wantsGS1 = new HashMap<>();
 
-    private ArrayList<IView> tabOrder = new ArrayList<>();
+    private final ArrayList<IView> tabOrder = new ArrayList<>();
 
-    private BroadcastReceiver zebraBroadcastReceiver = new BroadcastReceiver() {
+
+    private final BroadcastReceiver zebraBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, @NonNull Intent intent) {
             String action = intent.getAction();
-            Bundle b = intent.getExtras();
-
-            if (b != null) {
-                for (String key : b.keySet()) {
-                    Log.e("ldaldx", key + " : " + (b.get(key) != null ? b.get(key) : "NULL"));
-                }
-            }
-
-            //
-            // The following is useful for debugging to verify
-            // the format of received intents from DataWedge:
-            //
-            // for (String key : b.keySet())
-            // {
-            //   Log.v(LOG_TAG, key);
-            // }
-            //
 
             if (action.equals(getResources().getString(R.string.zebra_activity_intent_filter_action))) {
                 //
@@ -78,7 +68,27 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
                 //
 
                 try {
-                    displayScanResult(intent, "via Broadcast");
+                    //String decodedSource = intent.getStringExtra(getResources().getString(R.string.zebra_datawedge_intent_key_source));
+                    String decodedData = intent.getStringExtra(getResources().getString(R.string.zebra_datawedge_intent_key_data));
+                    //String decodedLabelType = intent.getStringExtra(getResources().getString(R.string.zebra_datawedge_intent_key_label_type));
+
+                    int numUsedGS1 = 0;
+                    if(gs1Decoder.decode(decodedData) > 0) {
+                        for (String key : wantsGS1.keySet()) {
+                            if (gs1Decoder.containsKey(key)) {
+                                View vw = wantsGS1.get(key);
+                                if (vw instanceof CustomEdit) {
+                                    CustomEdit ce = (CustomEdit) vw;
+                                    ce.setText(gs1Decoder.getValueForAI(key));
+                                    numUsedGS1++;
+                                }
+                            }
+                        }
+                    }
+
+                    if(numUsedGS1 == 0) doSendDataToFocused(gs1Decoder.getRawData());
+                    onFrameGo("scanner");
+
                 } catch (Exception e) {
 
                     //
@@ -95,7 +105,7 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
         String decodedData = initiatingIntent.getStringExtra(getResources().getString(R.string.zebra_datawedge_intent_key_data));
         String decodedLabelType = initiatingIntent.getStringExtra(getResources().getString(R.string.zebra_datawedge_intent_key_label_type));
 
-        displayAlert("main decodedSource", decodedSource + "\n" + decodedData + "\n" + decodedLabelType);
+        displayAlert("main decodedSource", decodedSource + "\n" + decodedData + "\n" + decodedLabelType + " howDataReceived = " + howDataReceived);
 //        displayAlert("decodedData", decodedData);
 //        displayAlert("decodedLabelType", decodedLabelType);
 
@@ -112,33 +122,54 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
     }
 
     @Override
-    public void executeMenuAction(String action, Boolean local) {
-        displayAlert("Execute menu action", action + " " + local);
+    public void executeMenuAction(String action, String actionArgs) {
+        if(action != null && action.equals("hide")) {
+            actionHideMenu();
+            return;
+        }
+
+        HashMap<String,String> lov = new HashMap<>();
+        String lstAction = action + "&" + actionArgs;
+
+        String[] lstElem = lstAction.split("&");
+        String[] lstValue;
+        for (int i = 0; i < lstElem.length; i++) {
+            lstValue = lstElem[i].split("=");
+            if (lstValue.length < 2) continue;
+            lov.put(lstValue[0], lstValue[1]);
+        }
+
+        doAction(lov, "go", actionArgs + "&action=" + action);
     }
 
     // change fields upon value-changed event of browse
     @Override
     public void setControlsOnBrowseVC(String setString) {
         if((setString == null) || (setString.length() == 0)) return;
-        String[] lstElem = setString.split( "^");
+        String[] lstElem = setString.split("&");
         String[] lstValue;
         for(int i = 0; i< lstElem.length;i++) {
             lstValue = lstElem[i].split("=");
-            if(lstValue.length < 2) continue;
+
+            if(lstElem[i].equals(lstValue[0])) continue;
+            //if(lstValue.length < 2) continue;
 
             if(listOfViews.containsKey(lstValue[0])) {
                 View vw = listOfViews.get(lstValue[0]);
                 CustomEdit ce;
                 CustomLabel cl;
 
-                if( CustomEdit.class.isInstance(vw)) {
+                if(vw instanceof CustomEdit) {
                     ce = (CustomEdit)vw;
-                    ce.setText(lstValue[1]);
+                    if(lstValue.length == 2) ce.setText(lstValue[1]);
+                    else ce.setText("");
                 }
 
-                if( CustomLabel.class.isInstance(vw)) {
+                if(vw instanceof CustomLabel) {
                     cl = (CustomLabel)vw;
-                    cl.setText(lstValue[1]);
+
+                    if(lstValue.length == 2) cl.setText(lstValue[1]);
+                    else cl.setText("");
                 }
 
             }
@@ -147,15 +178,15 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
 
     @Override
     public void onBrowserEnterClicked() {
-        onFrameGo();
+        onFrameGo("browser");
     }
 
-    private void onFrameGo() {
+    private void onFrameGo(String goSrc) {
         HashMap<String,String> lov = new HashMap<>();
 
         // collect data from browser
         if(csBrowser.getFocusedOnGo() != null) {
-            String[] lstElem = csBrowser.getFocusedOnGo().split("^");
+            String[] lstElem = csBrowser.getFocusedOnGo().split("&");
             String[] lstValue;
             for (int i = 0; i < lstElem.length; i++) {
                 lstValue = lstElem[i].split("=");
@@ -164,18 +195,22 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
             }
         }
 
+        lov.put("goSrc", goSrc);
+
         // collect data from edits
         for(String key: listOfViews.keySet()) {
             View vw = listOfViews.get(key);
             String value = "";
 
-            if( CustomEdit.class.isInstance(vw)) {
+            if(vw instanceof CustomEdit) {
                 CustomEdit ce = (CustomEdit)vw;
-                value = ce.getText().toString();
+                value = Objects.requireNonNull(ce.getText()).toString();
             }
 
-            if( CustomLabel.class.isInstance(vw)) {
+            if(vw instanceof CustomLabel) {
                 CustomLabel cl = (CustomLabel)vw;
+                if(!cl.isReported()) continue;
+
                 value = cl.getText().toString();
             }
 
@@ -187,17 +222,28 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
             }
         }
 
-        // send
-        int i = 0;
+        doAction(lov, "go", null);
     }
 
     private void doSendDataToFocused(String rawData) {
         for(IView vw : tabOrder) {
-            if( CustomEdit.class.isInstance(vw)) {
+            if(vw instanceof CustomEdit) {
                 CustomEdit ce = (CustomEdit) vw;
                 if(ce.isFocused()) ce.setText(rawData);
             }
         }
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if(hasFocus) {
+            if(csMenu.isVisible()) csMenu.setFocused();
+            else{
+                if(tabOrder.size() > 0) tabOrder.get(0).setFocused();
+            }
+        }
+
     }
 
     @Override
@@ -247,11 +293,15 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
             sessionID = getIntent().getStringExtra("sessionID");
         }
 
-//        Intent login = new Intent(getApplicationContext(), LoginActivity.class);
-//        startActivity(login);
+        binding.buttonForward.setOnClickListener(v -> onFrameGo("goBtn"));
+        binding.buttonForward.requestFocus();
 
-        binding.buttonForward.setOnClickListener(v -> { onFrameGo(); });
 
+        doAction(null, "", null);
+
+
+
+        binding.button33.setVisibility(View.GONE);
 
         binding.button33.setOnClickListener(v -> {
             //send broadcast
@@ -267,7 +317,7 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
 
 /*            sendBroadcast(localIntent);*/
 
-            doAction();
+            doAction(null, "", null);
 
 
 
@@ -280,23 +330,23 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
 
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        int height = displayMetrics.heightPixels;
+
         int width = displayMetrics.widthPixels;
 
-        frameLayout = (FrameLayout) findViewById(R.id.mainLayout);
-        csMenu = new CustomMenu(frameLayout, frameLayout.getContext(), "Menu główne", this, height);
+        frameLayout = findViewById(R.id.mainLayout);
+        mainToolbar = binding.mainToolbar;
+
+        csMenu = new CustomMenu(frameLayout, frameLayout.getContext(), this);
         csMenu.hide();
 
-        csBrowser = new CustomBrowser(frameLayout, frameLayout.getContext(), this, width, height);
+        csBrowser = new CustomBrowser(frameLayout, frameLayout.getContext(), this, width);
         csBrowser.hide();
+
 
         frameLayout.setOnKeyListener((v, keycode, event) -> {
                     if (event.getAction() == KeyEvent.ACTION_DOWN) {
                         switch (keycode) {
                             case KeyEvent.KEYCODE_NUMPAD_ENTER:
-                                displayAlert("enter", "enter");
-                                return true;
-
                             case KeyEvent.KEYCODE_ENTER:
                                 displayAlert("enter", "enter");
                                 return true;
@@ -306,196 +356,6 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
                 }
         );
 
-        /*
-        csBrowser.clear();
-        csBrowser.addColumn("Lokalizacja", true, 100, "");
-        csBrowser.addColumn("Kod", true, 200, "");
-        csBrowser.addColumn("Kod", false, 200, "");
-        csBrowser.addColumn("Kod", false, 200, "");
-*/
-
-
-        /*
-        csBrowser.addRow("NOWA",     "...005124010008668", "1", "2");
-        csBrowser.addRow("SP-NC 2T", "...005124010008651", "1", "2");
-        csBrowser.addRow("B-R02",    "...005124010008637", "1", "2");
-        csBrowser.addRow("SAMOCHOD", "...005124010008644", "1", "2");
-        csBrowser.addRow("H-R02-2",  "...005124010004719", "1", "2");
-        csBrowser.addRow("H-R02-2",  "...005124010004696", "1", "2");
-        csBrowser.addRow("A",        "...005124010000632", "1", "2");
-*/
-
-/*
-        csBrowser.setYPositionAndHeight(convP2DP(120), convP2DP( 180));
-        //csBrowser.addRow("B-R02",    "...005124010008637", "1", "2");
-        csBrowser.prepareBrowser();
-        csBrowser.show();
-
-        csBrowser.onBrowserItemClickUp(-1);
-        //csBrowser.hide();
-*/
-
-
-
-
-        /*  fragmentacja - pobranie palety
-
-        CustomLabel cs1_1 = new CustomLabel(this, convP2DP(100), convP2DP(30), 0, convP2DP(0));
-        layout.addView(cs1_1);
-        cs1_1.setText("Magazyn:");
-
-        CustomLabel cs1_2 = new CustomLabel(this, convP2DP(100), convP2DP(30), 0, convP2DP(100));
-        layout.addView(cs1_2);
-        cs1_2.setText("2T");
-        cs1_2.setBoldItalic(true, false);
-
-        CustomLabel cs2_1 = new CustomLabel(this, convP2DP(100), convP2DP(30), convP2DP(30), convP2DP(0));
-        layout.addView(cs2_1);
-        cs2_1.setText("Indeks:");
-
-        CustomLabel cs2_2 = new CustomLabel(this, convP2DP(100), convP2DP(30), convP2DP(30), convP2DP(100));
-        layout.addView(cs2_2);
-        cs2_2.setText("03089-6");
-        cs2_2.setBoldItalic(true, false);
-
-        //new CustomLabel(this, 0,1,2,3);
-        CustomLabel cs3_1 = new CustomLabel(this, convP2DP(600), convP2DP(30), convP2DP(60), convP2DP(0));
-        layout.addView(cs3_1);
-        cs3_1.setText("Maślanka stracciatella 400g");
-
-
-        CustomLabel cs4_1 = new CustomLabel(this, convP2DP(200), convP2DP(30), convP2DP(100), convP2DP(0));
-        layout.addView(cs4_1);
-        cs4_1.setText("Skanuj etykietę:");
-        cs4_1.setBoldItalic(true, false);
-
-//        CustomEdit ce1 = new CustomEdit(this, convP2DP(180), convP2DP(30), convP2DP(90), convP2DP(140));
-        CustomEdit ce1 = new CustomEdit(this, convP2DP(320), convP2DP(30), convP2DP(390), convP2DP(00));
-        ce1.setText("123456789_123456789_12345");
-        layout.addView(ce1);
-
-
-        csBrowser = new CustomBrowser(layout, layout.getContext(), this, width, height);
-        csBrowser.clear();
-        csBrowser.addColumn("Lokalizacja", true, 100, false);
-        csBrowser.addColumn("Kod", true, 200, false);
-        csBrowser.addColumn("Kod", false, 200, false);
-        csBrowser.addColumn("Kod", false, 200, false);
-
-        csBrowser.addRow("NOWA",     "...005124010008668", "1", "2");
-        csBrowser.addRow("SP-NC 2T", "...005124010008651", "1", "2");
-        csBrowser.addRow("B-R02",    "...005124010008637", "1", "2");
-        csBrowser.addRow("SAMOCHOD", "...005124010008644", "1", "2");
-        csBrowser.addRow("H-R02-2",  "...005124010004719", "1", "2");
-        csBrowser.addRow("H-R02-2",  "...005124010004696", "1", "2");
-        csBrowser.addRow("A",        "...005124010000632", "1", "2");
-
-        csBrowser.setYPositionAndHeight(convP2DP(120), convP2DP( 180));
-        csBrowser.prepareBrowser();
-        csBrowser.show();
-
-
-        CustomLabel cs5_1 = new CustomLabel(this, convP2DP(100), convP2DP(30), convP2DP(300), convP2DP(0));
-        layout.addView(cs5_1);
-        cs5_1.setText("Kod:");
-
-        CustomLabel cs5_2 = new CustomLabel(this, convP2DP(300), convP2DP(30), convP2DP(300), convP2DP(100));
-        layout.addView(cs5_2);
-        cs5_2.setText("00959005124010008668");
-        cs5_2.setBoldItalic(true, false);
-
-        CustomLabel cs6_1 = new CustomLabel(this, convP2DP(100), convP2DP(30), convP2DP(330), convP2DP(0));
-        layout.addView(cs6_1);
-        cs6_1.setText("Nośnik:");
-
-        CustomLabel cs6_2 = new CustomLabel(this, convP2DP(300), convP2DP(30), convP2DP(330), convP2DP(100));
-        layout.addView(cs6_2);
-        cs6_2.setText("007590051200000001097");
-        cs6_2.setBoldItalic(true, false);
-
-
-        CustomLabel cs7_1 = new CustomLabel(this, convP2DP(100), convP2DP(30), convP2DP(360), convP2DP(0));
-        layout.addView(cs7_1);
-        cs7_1.setText("Partia:");
-
-        CustomLabel cs7_2 = new CustomLabel(this, convP2DP(300), convP2DP(30), convP2DP(360), convP2DP(100));
-        layout.addView(cs7_2);
-        cs7_2.setText("00220825L869");
-        cs7_2.setBoldItalic(true, false);
-
-
-        CustomLabel cs8_1 = new CustomLabel(this, convP2DP(100), convP2DP(30), convP2DP(390), convP2DP(0));
-        layout.addView(cs8_1);
-        cs8_1.setText("Dostępne:");
-
-        CustomLabel cs8_2 = new CustomLabel(this, convP2DP(300), convP2DP(30), convP2DP(390), convP2DP(100));
-        layout.addView(cs8_2);
-        cs8_2.setText("1 500 szt");
-        cs8_2.setBoldItalic(true, false);
-
-*/
-
-        /*
-
-
-
-        csBrowser.setYPositionAndHeight(convP2DP(35), convP2DP( 180));
-        csBrowser.clear();
-        csBrowser.addColumn("Lokalizacja", true, 200, false);
-        csBrowser.addColumn("Ilość", true, 200, false);
-        csBrowser.addColumn("Trzecia", false, 200, false);
-        //csBrowser.addColumn("Czwarta", false, 400, false);
-        csBrowser.prepareBrowser();
-
-        csBrowser.addRow("SP-SC", "7108 kg", "1", "2");
-        csBrowser.addRow("H-R71-1", "720 kg", "1", "2");
-        csBrowser.addRow("ROZB", "998 kg", "1", "2");
-        csBrowser.addRow("SP-NC", "200 kg", "1", "2");
-        csBrowser.addRow("A-R01", "1200 kg", "1", "2");
-        csBrowser.addRow("A-R02", "600 kg", "1", "2");
-        csBrowser.addRow("A-R05", "110 kg", "1", "2");
-
-        csBrowser.show();
-
-
-        csBrowser.clear();
-        csBrowser.addColumn("Lokalizacja", true, 200, false);
-        csBrowser.addColumn("Ilość", true, 200, false);
-        csBrowser.addColumn("Trzecia", false, 200, false);
-        //csBrowser.addColumn("Czwarta", false, 400, false);
-        csBrowser.prepareBrowser();
-
-        csBrowser.addRow("SP-SC", "7108 kg", "1", "2");
-        csBrowser.addRow("H-R71-1", "720 kg", "1", "2");
-        csBrowser.addRow("ROZB", "998 kg", "1", "2");
-        csBrowser.addRow("SP-NC", "200 kg", "1", "2");
-        csBrowser.addRow("A-R01", "1200 kg", "1", "2");
-        csBrowser.addRow("A-R02", "600 kg", "1", "2");
-        csBrowser.addRow("A-R05", "110 kg", "1", "2");
-
-        csBrowser.show();
-
-
-
-
-        CustomLabel csLabel2 = new CustomLabel(this, convP2DP(300), convP2DP(30), convP2DP(240), convP2DP(10));
-        layout.addView(csLabel2);
-        csLabel2.setText("02162-50");
-
-        CustomLabel csLabel3 = new CustomLabel(this, convP2DP(300), convP2DP(30), convP2DP(275), convP2DP(10));
-        layout.addView(csLabel3);
-        csLabel3.setText("Masło Ekstra Polskie 200g");
-
-        CustomLabel csLabel4 = new CustomLabel(this, convP2DP(300), convP2DP(30), convP2DP(310), convP2DP(10));
-        layout.addView(csLabel4);
-        csLabel4.setText("Magazyn 2");
-
-        CustomLabel csLabel5 = new CustomLabel(this, convP2DP(300), convP2DP(30), convP2DP(345), convP2DP(10));
-        layout.addView(csLabel5);
-        csLabel5.setText("EAN: 5900512300108");
-
-
-*/
 
         IntentFilter filter = new IntentFilter();
         filter.addCategory(Intent.CATEGORY_DEFAULT);
@@ -503,74 +363,73 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
         registerReceiver(zebraBroadcastReceiver, filter);
 
 
-/*
-
-        Button btn = findViewById(R.id.button);
-
-        btn.setOnClickListener( (v) -> {
-            csBrowser.hide();
-            csBrowser.clear();
-            csBrowser.setYPositionAndHeight(100, 200);
-            csBrowser.addColumn("Pierwsza", true, 100, false);
-            csBrowser.addColumn("Druga", true, 200, false);
-            csBrowser.prepareBrowser();
-
-            for(int i = 0;i<1;i++) {
-                csBrowser.addRow("uucol2:" + Integer.toString(i), "2" , "" , "");
-            }
-            csBrowser.show();
-
-        });
-
-        CustomEdit csEdit2 = new CustomEdit(this, convP2DP(300), convP2DP(20), convP2DP(0), convP2DP(10));
-        layout.addView(csEdit2);
-        csEdit2.setText("Skanuj lokalizację do:");
-
-*/
         /* 320x420 */
-
-
-/*
-        csMenu.clear();
-        csMenu.setTitle("Wydania");
-
-        csMenu.addItem("1 - Lokalizacja", "LOK/lokalizacja.js", false);
-        csMenu.addItem("2 - Przesunięcia", "PRZ/pzresunięcia.js", false);
-        csMenu.addItem("3 - Przesunięcia", "PRZ/pzresunięcia.js", false);
-        csMenu.addItem("4 - Przesunięcia", "PRZ/pzresunięcia.js", false);
-        //csMenu.addItem("4 - Przesunięcia", "PRZ/pzresunięcia.js", false);
-        csMenu.addItem("ESC Koniec pracy", "PRZ/pzresunięcia.js", true);
-
- */
-/*
-        csMenu.addItem("1 - Odwrotna", "LOK/lokalizacja.js", false);
-        csMenu.addItem("2 - Rezerwacyjna", "PRZ/pzresunięcia.js", false);
-        csMenu.addItem("3 - Normalna", "PRZ/pzresunięcia.js", false);
-        csMenu.addItem("4 - Dokładki", "PRZ/pzresunięcia.js", false);
-        csMenu.addItem("5 - Załadunek", "PRZ/pzresunięcia.js", false);
-        csMenu.addItem("6 - Drukuj załadunek", "LOK/lokalizacja.js", false);
-        csMenu.addItem("7 - Dekompletacja", "PRZ/pzresunięcia.js", false);
-        csMenu.addItem("8 - Komasacja palet", "PRZ/pzresunięcia.js", false);
-        csMenu.addItem("9 - Rozładunek", "PRZ/pzresunięcia.js", false);
-
-        //csMenu.addItem("4 - Przesunięcia", "PRZ/pzresunięcia.js", false);
-        csMenu.addItem("ESC - Koniec", "PRZ/pzresunięcia.js", true);
-
-
-        csMenu.bringToFront();
-        csMenu.show();
-        csMenu.hide();
-*/
-
-
-
-
 
     }  // onCreate
 
+    DialogInterface.OnClickListener dialogQuitClickListener = new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            switch (which){
+                case DialogInterface.BUTTON_POSITIVE:
+                    finish();
+                    //Yes button clicked
+                    break;
+
+                case DialogInterface.BUTTON_NEGATIVE:
+                    //No button clicked
+                    break;
+            }
+        }
+    };
+
+    DialogInterface.OnClickListener dialogConfirmClickListener = new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            switch (which){
+                case DialogInterface.BUTTON_POSITIVE:
+                    dialog.dismiss();
+                    onFrameGo("confirm");
+                    //Yes button clicked
+                    break;
+
+                case DialogInterface.BUTTON_NEGATIVE:
+                    dialog.dismiss();
+                    //No button clicked
+                    break;
+            }
+        }
+    };
+
+
+    public void actionHideMenu() {
+        csMenu.hide();
+        binding.buttonForward.show();
+
+        if(tabOrder.size() > 0) tabOrder.get(0).setFocused();
+        else binding.buttonForward.requestFocus();
+    }
 
     @Override
     public void onBackPressed() {
+        if(csMenu.isVisible()) {
+            if(csMenu.getBackAction() != null && csMenu.getBackAction().equals("hide")) {
+                actionHideMenu();
+                return;
+            }
+        }
+
+        if(backAction.equals("quit") || backAction.length() == 0) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("Czy chcesz zakończyć pracę?").setPositiveButton("Tak", dialogQuitClickListener).setNegativeButton("Nie", dialogQuitClickListener).show();
+            return;
+        }
+
+        if(backAction.length() > 0 && !backAction.equals("block") && !backAction.equals("ignore")) {
+            doAction(null, "back", null);
+            return;
+        }
+
         //super.onBackPressed();
     }
 
@@ -581,17 +440,24 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
     }
 
 
-    protected void doAction() {
+    protected void doAction(HashMap<String,String> lov, String actionName, String actionArgs) {
         //   if (!validateData()) return;
         RestApi restApi = RestClient.getApi();
         MainRequestData mainRequestData = new MainRequestData();
+
+        mainRequestData.setSessionID(sessionID);
+        mainRequestData.setUserID(userID);
+        mainRequestData.setRequest(actionName);
+        mainRequestData.setActionArgs(actionArgs);
+        mainRequestData.setDataFromLov(lov);
+
 
         Call<MainResponseData> callAction = restApi.doAction(mainRequestData);
 
         if(callAction == null) return;
         callAction.enqueue(new Callback<MainResponseData>() {
             @Override
-            public void onResponse(Call<MainResponseData> call, Response<MainResponseData> response) {
+            public void onResponse(@NonNull Call<MainResponseData> call, @NonNull Response<MainResponseData> response) {
                 MainResponseData lr = response.body();
 
                 if(lr == null) {
@@ -632,7 +498,7 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
             seq = action.getSequence();
 
             if(action.getType().equals("action")) {
-                processAction(action);
+                processAction(action, mrd);
                 continue;
             }
 
@@ -656,11 +522,13 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
                 processActionEdit(action);
                 continue;
             }
-
-
-            System.out.print(seq);
         }
 
+        if(csMenu.isVisible()) {
+            csMenu.setFocused();
+        } else {
+            if(tabOrder.size() > 0) tabOrder.get(0).setFocused();
+        }
 
 
     }
@@ -699,6 +567,7 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
         }
 
         csBrowser.show();
+        csBrowser.bringToFront();
     }
 
     private void processMenu(MainResponseData.Action action, MainResponseData mrd) {
@@ -706,9 +575,19 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
         int seq;
         if(mrd==null) return;
 
+        binding.buttonForward.hide();
         csMenu.hide();
         csMenu.clear();
-        csMenu.setTitle(action.getName());
+
+        if(action.getText()!= null) {
+            csMenu.setTitle(action.getText());
+        } else {
+            csMenu.setTitle("");
+        }
+
+        csMenu.setBackAction( action.getBackAction() );
+
+
         menuList = mrd.getMenu();
 
         if(menuList == null) return;
@@ -716,7 +595,7 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
         if(menuList.size() > 0) {
             menuList.sort(new MainResponseData.MenuComparator());
             for (MainResponseData.Menu menuItem : menuList) {
-                csMenu.addItem(menuItem.getLabel(), menuItem.getAction(), false);
+                csMenu.addItem(menuItem.getLabel(), menuItem.getAction(), menuItem.getActionArgs());
             }
         }
         csMenu.show();
@@ -732,8 +611,39 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
             listOfViews.put(action.getName(), csLabel);
             frameLayout.addView(csLabel);
         }
+
+        csLabel.setReported( action.isReported() ) ;
         csLabel.setText( action.getText() );
         csLabel.setBoldItalic(action.getBold(), false);
+
+        if(action.getColor().equals("red")) {
+            csLabel.setTextColor(Color.RED);
+        }
+
+        if(action.getColor().equals("yellow")) {
+            csLabel.setTextColor(Color.YELLOW);
+        }
+
+        if(action.getColor().equals("yellow/black")) {
+            csLabel.setBackgroundColor(Color.YELLOW);
+            csLabel.setTextColor(Color.BLACK);
+        }
+
+
+
+        if(action.getAlign() != null) {
+                if(action.getAlign().equals("right")) csLabel.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_END);
+                if(action.getAlign().equals("left_middle")) {
+                        csLabel.setEllipsize(TextUtils.TruncateAt.MIDDLE);
+
+                }
+        }
+
+
+//        textViewColumn.setGravity(View.TEXT_ALIGNMENT_VIEW_END);
+//        textViewColumn.setEllipsize(TextUtils.TruncateAt.START);
+
+
 
     }
 
@@ -748,56 +658,52 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
                 wantsGS1.put(action.getOnGS1(), csEdit);
             }
 
+            if(action.getSubtype().equals("date")) {
+                csEdit.setInputType(InputType.TYPE_CLASS_DATETIME );
+
+                // limit entry type to 10 characters
+                InputFilter[] editFilters = csEdit.getFilters();
+                InputFilter[] newFilters = new InputFilter[editFilters.length + 1];
+                System.arraycopy(editFilters, 0, newFilters, 0, editFilters.length);
+                newFilters[editFilters.length] = new InputFilter.LengthFilter(10);
+                csEdit.setFilters(newFilters);
+                csEdit.addTextChangedListener(new DateTextWatcher());
+            }
+
+            if(action.getSubtype().equals("number")) {
+                csEdit.setInputType(InputType.TYPE_CLASS_NUMBER );
+            }
+
+            if(action.getSubtype().equals("number3")) {
+                csEdit.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+            }
+
             csEdit.setId(action.getSequence());
             tabOrder.add( csEdit );
             if(action.getSequence() > 0) csEdit.setNextFocusUpId(action.getSequence() - 1);
             csEdit.setNextFocusDownId(action.getSequence() + 1 );
 
-
-            csEdit.setNextFocusUpId(2);
-            csEdit.setNextFocusDownId(2);
-
             listOfViews.put(name, csEdit);
             frameLayout.addView(csEdit);
 
             csEdit.setOnKeyListener((v, keycode, event) -> {
-                        int idx;
-                        IView vw;
                         if (event.getAction() == KeyEvent.ACTION_DOWN) {
                             switch (keycode) {
                                 case KeyEvent.KEYCODE_DPAD_UP:
-                                    if( IView.class.isInstance(v)) return moveToPrevTabItem( (IView)v);
+                                    if(v instanceof IView) return moveToPrevTabItem( (IView)v);
                                     return false;
                                 case KeyEvent.KEYCODE_DPAD_DOWN:
-                                    if( IView.class.isInstance(v)) return moveToNextTabItem( (IView)v);
+                                    if(v instanceof IView) return moveToNextTabItem( (IView)v);
                                     return false;
                                 case KeyEvent.KEYCODE_ENTER:
                                 case KeyEvent.KEYCODE_NUMPAD_ENTER:
-                                    onFrameGo();
+                                    onFrameGo(name);
                                     return true;
-/*
-*/
                             } // switch
                         } // key down
                         return false;
                     });
-/*
-            frameLayout.setOnKeyListener((v, keycode, event) -> {
-                        if (event.getAction() == KeyEvent.ACTION_DOWN) {
-                            switch (keycode) {
-                                case KeyEvent.KEYCODE_DPAD_UP:
-                                    displayAlert("enter", "enter");
-                                    return true;
 
-                                case KeyEvent.KEYCODE_DPAD_DOWN:
-                                    csEdit.setNext
-                                    return true;
-                            } // switch
-                        } // key down
-                        return false;
-                    }
-            );
-*/
 
 
         }
@@ -806,18 +712,95 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
     }
 
 
-    private void processAction(MainResponseData.Action action) {
+    private void processAction(MainResponseData.Action action, MainResponseData mrd) {
+        if(action.getName().equals("confirm")) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage(action.getText()).setPositiveButton("1 - Tak", dialogConfirmClickListener).setNegativeButton("0 - Nie", dialogConfirmClickListener);
+
+            builder.setOnKeyListener(new DialogInterface.OnKeyListener() {
+                @Override
+                public boolean onKey(DialogInterface dialogInterface, int keyCode, KeyEvent keyEvent) {
+                    if (keyEvent.getAction() == KeyEvent.ACTION_DOWN) {
+                        if (keyCode == KeyEvent.KEYCODE_0) {
+                            dialogInterface.dismiss();
+                            return true;
+                        }
+
+                        if (keyCode == KeyEvent.KEYCODE_1) {
+                            dialogInterface.dismiss();
+                            onFrameGo("confirm");
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+            });
+
+            builder.show();
+        }
+
+
+
+        if(action.getName().equals("nextAction")) {
+            nextAction = action.getText();
+        }
+
+        if(action.getName().equals("backAction")) {
+            backAction = action.getText();
+        }
+
+        if(action.getName().equals("path")) {
+            mainToolbar.setSubtitle(action.getText());
+        }
+
+
+        if(action.getName().equals("information")) {
+            displayAlert("Informacja", action.getText());
+        }
+
+        if(action.getName().equals("warning")) {
+            displayAlert("Ostrzeżenie", action.getText());
+        }
+
+        if(action.getName().equals("error")) {
+            displayAlert("Błąd", action.getText());
+        }
+
+        if(action.getName().equals("clearBrowse")) {
+            csBrowser.clearEntries();
+        }
+
+        if(action.getName().equals("refreshBrowse")) {
+            List<MainResponseData.Data> dataList;
+
+            csBrowser.clearEntries();
+            dataList = mrd.getData();
+
+            if(dataList.size() > 0) {
+                dataList.sort(new MainResponseData.DataComparator());
+                for (MainResponseData.Data data : dataList) {
+                    csBrowser.addRow( data.getColumn1(), data.getColumn2(), data.getColumn3(), data.getColumn4(), data.getOnGo(), data.getOnvalueChanged());
+                }
+            }
+            csBrowser.show();
+        }
+
+
         if(action.getName().equals("clear")) {
             csBrowser.hide();
             csMenu.hide();
-
+            binding.buttonForward.show();
             for(String elem : listOfViews.keySet()) {
                 frameLayout.removeView(listOfViews.get(elem));
             }
 
+            mainToolbar.setTitle(action.getText());
+            mainToolbar.setSubtitle("");
             listOfViews.clear();
             wantsGS1.clear();
             tabOrder.clear();
+            nextAction = "";
+            backAction = "back";
 
 
         }
