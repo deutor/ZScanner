@@ -29,13 +29,12 @@ import retrofit2.Response;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private ActivityLoginBinding binding;
     private EditText editPassword;
     private EditText editUser;
     private TextView txtServer;
     private TextInputLayout txtServer_title;
 
-    private GS1_Decoder gs1Decoder = new GS1_Decoder();
+    private final GS1_Decoder gs1Decoder = new GS1_Decoder();
     private String server_address;
     private String server_name;
     private String server_port;
@@ -45,9 +44,8 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            Bundle b = intent.getExtras();
 
-            if (action.equals(getResources().getString(R.string.zebra_activity_intent_filter_action))) {
+            if (action.equals( getString(R.string.zebra_activity_intent_filter_action))) {
                 //
                 //  Received a barcode scan
                 //
@@ -75,7 +73,7 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         }
-    };
+    }
 
     ZebraBroadcastReceiver zebraBroadcastReceiver;
 
@@ -105,7 +103,7 @@ public class LoginActivity extends AppCompatActivity {
         RestApi api = RestClient.getApi();
 
         LoginRequestData loginRequestData = new LoginRequestData();
-        loginRequestData.setUser(login);
+        loginRequestData.setUserName(login);
         loginRequestData.setPassword(password_sha);
         loginRequestData.setUserToken(userToken);
         loginRequestData.setAction("doLogin");
@@ -119,10 +117,11 @@ public class LoginActivity extends AppCompatActivity {
                 LoginResponseData lr = response.body();
 
                 if(lr == null) {
-                    if(response.raw() != null)
+                    if(!response.raw().toString().isEmpty()) {
                         displayAlert(getString(R.string.loginBladSerwera), response.raw().toString());
-                    else
-                        displayAlert(getString(R.string.loginBladSerwera), "Problemy z połączeniem.");
+                    } else {
+                        displayAlert(getString(R.string.loginBladSerwera), "Problemy z połączaniem.");
+                    }
                     return;
                 }
 
@@ -140,7 +139,7 @@ public class LoginActivity extends AppCompatActivity {
             } // callLogin.enqueue
 
             @Override
-            public void onFailure(Call<LoginResponseData> call, Throwable t) {
+            public void onFailure(@NonNull Call<LoginResponseData> call, Throwable t) {
                 call.cancel();
                 if(t!=null && t.getCause() != null)
                     displayAlert(getString(R.string.loginBladPolaczenia), t.getCause().getMessage());
@@ -159,11 +158,11 @@ public class LoginActivity extends AppCompatActivity {
         String serverName = gs1Decoder.getValueForAI("91");
         String serverAddress = gs1Decoder.getValueForAI("92");
         String serverPort = gs1Decoder.getValueForAI("93");
-        int port;
+
 
         if(serverName.length() > 0 && serverAddress.length() > 0 && serverPort.length() > 0) {
             try {
-                port = Integer.valueOf(serverPort);
+                Integer.parseInt(serverPort);
             } catch (NumberFormatException ex) {
                 displayAlert("Nieprawidłowa etykieta serwera", "Zeskanowana etykieta jest nieprawidłowa\n" +
                         "Nieprawidłowy port: " + serverPort);
@@ -231,13 +230,13 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        binding = ActivityLoginBinding.inflate(getLayoutInflater());
+        eu.ldaldx.mobile.zscanner.databinding.ActivityLoginBinding binding = ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        editPassword = (EditText) findViewById(R.id.editPassword);
-        editUser = (EditText) findViewById(R.id.editUser);
-        txtServer = (TextView) findViewById(R.id.txtServer);
-        txtServer_title = (TextInputLayout) findViewById(R.id.txtServer_title);
+        editPassword = findViewById(R.id.editPassword);
+        editUser = findViewById(R.id.editUser);
+        txtServer = findViewById(R.id.txtServer);
+        txtServer_title = findViewById(R.id.txtServer_title);
 
         SharedPreferences preferences = getSharedPreferences( getString(R.string.zscanner_profile_key), MODE_PRIVATE);
         if(preferences.contains(getString(R.string.zscanner_preference_server_name))) {
@@ -278,7 +277,7 @@ public class LoginActivity extends AppCompatActivity {
             localIntent.putExtra(getString(R.string.zebra_datawedge_intent_key_source), "scanner");
             localIntent.putExtra(getString(R.string.zebra_datawedge_intent_key_label_type), "typ_etykiety");
             //localIntent.putExtra(getString(R.string.zebra_datawedge_intent_key_data), GS1_Decoder.ctrlFNC1 + "91PROD" + GS1_Decoder.ctrlGS + "9210.0.0.11" + GS1_Decoder.ctrlGS + "9344044"+ GS1_Decoder.ctrlGS);
-            //localIntent.putExtra(getString(R.string.zebra_datawedge_intent_key_data), GS1_Decoder.ctrlFNC1 + "91PROD" + GS1_Decoder.ctrlGS + "92192.168.43.1" + GS1_Decoder.ctrlGS + "9344044"+ GS1_Decoder.ctrlGS);
+            // localIntent.putExtra(getString(R.string.zebra_datawedge_intent_key_data), GS1_Decoder.ctrlFNC1 + "91PROD" + GS1_Decoder.ctrlGS + "92192.168.43.1" + GS1_Decoder.ctrlGS + "9344044"+ GS1_Decoder.ctrlGS);
             localIntent.putExtra(getString(R.string.zebra_datawedge_intent_key_data), GS1_Decoder.ctrlFNC1 + "94TOKEN-UZYTKOWNIKA" + GS1_Decoder.ctrlGS);
 
             sendBroadcast(localIntent);
@@ -294,7 +293,11 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(zebraBroadcastReceiver != null) unregisterReceiver(zebraBroadcastReceiver);
+        try {
+            if (zebraBroadcastReceiver != null) unregisterReceiver(zebraBroadcastReceiver);
+        } catch (Exception ex) {
+            // do nothing - application is destroyed anyway
+        }
     }
 
     private static String get_SHA_256_SecurePassword(@NonNull String passwordToHash,
