@@ -1,5 +1,7 @@
 package eu.ldaldx.mobile.zscanner;
 
+import java.util.concurrent.TimeUnit;
+
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
@@ -14,7 +16,15 @@ public class RestClient {
         if(retrofit == null) {
             HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
             interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-            OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
+            OkHttpClient client = new OkHttpClient.Builder()
+                    .addInterceptor(interceptor)
+                    .readTimeout(60, TimeUnit.SECONDS)
+                    .connectTimeout(10, TimeUnit.SECONDS)
+                    .build();
+
+
+
+
             retrofit = new Retrofit.Builder()
                     .baseUrl("http://" + server + ":" + port)
                     .addConverterFactory(MoshiConverterFactory.create())
@@ -22,13 +32,8 @@ public class RestClient {
                     .build();
 
             restApi = retrofit.create(RestApi.class);
-
         }
 
-        return retrofit;
-    }
-
-    public static Retrofit getClient() {
         return retrofit;
     }
 
