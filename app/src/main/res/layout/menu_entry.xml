@@ -1,31 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
 
     >
 
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+
+    <TableRow
+        android:focusable="true"
+        android:defaultFocusHighlightEnabled="true"
+        android:clickable="true"
+        android:focusableInTouchMode="true"
+        android:id="@+id/menuRow"
+        >
 
     <TextView
         android:id="@+id/txtMenuEntry"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-        android:clickable="true"
-        android:text="menu_entry"
-        android:textSize="22dp"></TextView>
+        android:clickable="false"
+        android:focusable="false"
+        android:text="@string/txt_menu_entry"
+        android:textSize="24sp"></TextView>
 
-    <View
-        android:id="@+id/lineMenuEntry"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:background="@android:color/darker_gray"/>
+    </TableRow>
+    </TableLayout>
 </LinearLayout>
 
 

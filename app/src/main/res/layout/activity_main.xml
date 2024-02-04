@@ -5,44 +5,44 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:layout_gravity="top|left"
     tools:context=".MainActivity">
 
 
-
     <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar2"
-                android:layout_width="match_parent"
-                android:layout_height="44dp"
-                android:background="@color/bluish"
+        android:id="@+id/mainToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@drawable/title_bar"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
+        app:subtitleTextAppearance="@style/MyActionBarSubTitle"
 
-                android:minHeight="?attr/actionBarSize"
-                android:theme="?attr/actionBarTheme"
+        app:titleMarginTop="0dp">
 
-                app:title="Lokalizacja"
-                app:titleTextColor="#FFFFFF">
-
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/buttonForward"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="right"
-                    android:clickable="true"
-                    android:gravity="right"
-                    android:background="#7BBE2E"
-                    app:backgroundTint="#7BBE2E"
-                    app:srcCompat="@drawable/baseline_arrow_forward_ios_24" />
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/buttonForward"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="end"
+            android:clickable="true"
+            android:contentDescription="@string/main_floating_go"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:gravity="end"
+            android:text="@string/main_floating_go"
+            app:srcCompat="@drawable/baseline_arrow_forward_ios_24" />
 
 
-            </androidx.appcompat.widget.Toolbar>
+    </androidx.appcompat.widget.Toolbar>
+
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
 
 
         android:id = "@+id/mainLayout"
@@ -52,9 +52,9 @@
         android:id="@+id/button33"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="380dp"
-            android:layout_marginLeft="270dp"
-        android:text="Tst" />
+        android:layout_marginTop="340dp"
+        android:layout_marginStart="270dp"
+        android:text="@string/txt_tst" />
 
         <include layout="@layout/browser_with_title"/>
 

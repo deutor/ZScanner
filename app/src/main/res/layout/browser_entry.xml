@@ -7,14 +7,13 @@
 
     >
     <TableLayout
-        android:layout_width="match_parent"
-android:showDividers="middle"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
 
         <TableRow
-android:showDividers="middle"
+            android:showDividers="middle"
             android:divider="@color/black"
             android:focusable="true"
             android:defaultFocusHighlightEnabled="true"
@@ -29,10 +28,12 @@ android:showDividers="middle"
                 android:layout_height="match_parent"
                 android:focusable="false"
                 android:focusableInTouchMode="false"
-                android:text="column1"
-                android:paddingBottom="1dp"
+                android:text=""
+                android:ellipsize="end"
+                android:maxLines="1"
 
-                android:textSize="15dp"></TextView>
+                android:paddingBottom="1dp"
+                android:textSize="16sp"></TextView>
 
             <TextView
                 android:id="@+id/txtBrowserCol2"
@@ -41,9 +42,11 @@ android:showDividers="middle"
                 android:layout_height="match_parent"
                 android:focusable="false"
                 android:focusableInTouchMode="false"
-                android:text="column2"
+                android:text=""
 
-                android:textSize="15dp"></TextView>
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textSize="16sp"></TextView>
 
             <TextView
                 android:id="@+id/txtBrowserCol3"
@@ -51,8 +54,11 @@ android:showDividers="middle"
                 android:layout_height="match_parent"
                 android:focusable="false"
                 android:focusableInTouchMode="false"
-                android:text="column3"
-                android:textSize="15dp"></TextView>
+                android:text=""
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:paddingBottom="1dp"
+                android:textSize="16sp"></TextView>
 
             <TextView
                 android:id="@+id/txtBrowserCol4"
@@ -60,9 +66,11 @@ android:showDividers="middle"
                 android:layout_height="match_parent"
                 android:focusable="false"
                 android:focusableInTouchMode="false"
-                android:text="column4"
+                android:text=""
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:paddingBottom="1dp"
-                android:textSize="15dp"></TextView>
+                android:textSize="16sp"></TextView>
         </TableRow>
     </TableLayout>
 </HorizontalScrollView>
