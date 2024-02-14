@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.InputFilter;
@@ -38,7 +37,7 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
 
     private float screenPixelDensity;
 
-    private String nextAction = "";
+
     private String backAction = "";
     FrameLayout frameLayout;
 
@@ -47,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
     private CustomMenu csMenu;
     private CustomBrowser csBrowser;
 
-    private GS1_Decoder gs1Decoder = new GS1_Decoder();
+    private final GS1_Decoder gs1Decoder = new GS1_Decoder();
     private String userID;
     private String sessionID;
 
@@ -133,8 +132,8 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
 
         String[] lstElem = lstAction.split("&");
         String[] lstValue;
-        for (int i = 0; i < lstElem.length; i++) {
-            lstValue = lstElem[i].split("=");
+        for (String s : lstElem) {
+            lstValue = s.split("=");
             if (lstValue.length < 2) continue;
             lov.put(lstValue[0], lstValue[1]);
         }
@@ -148,27 +147,27 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
         if((setString == null) || (setString.length() == 0)) return;
         String[] lstElem = setString.split("&");
         String[] lstValue;
-        for(int i = 0; i< lstElem.length;i++) {
-            lstValue = lstElem[i].split("=");
+        for (String s : lstElem) {
+            lstValue = s.split("=");
 
-            if(lstElem[i].equals(lstValue[0])) continue;
+            if (s.equals(lstValue[0])) continue;
             //if(lstValue.length < 2) continue;
 
-            if(listOfViews.containsKey(lstValue[0])) {
+            if (listOfViews.containsKey(lstValue[0])) {
                 View vw = listOfViews.get(lstValue[0]);
                 CustomEdit ce;
                 CustomLabel cl;
 
-                if(vw instanceof CustomEdit) {
-                    ce = (CustomEdit)vw;
-                    if(lstValue.length == 2) ce.setText(lstValue[1]);
+                if (vw instanceof CustomEdit) {
+                    ce = (CustomEdit) vw;
+                    if (lstValue.length == 2) ce.setText(lstValue[1]);
                     else ce.setText("");
                 }
 
-                if(vw instanceof CustomLabel) {
-                    cl = (CustomLabel)vw;
+                if (vw instanceof CustomLabel) {
+                    cl = (CustomLabel) vw;
 
-                    if(lstValue.length == 2) cl.setText(lstValue[1]);
+                    if (lstValue.length == 2) cl.setText(lstValue[1]);
                     else cl.setText("");
                 }
 
@@ -188,8 +187,8 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
         if(csBrowser.getFocusedOnGo() != null) {
             String[] lstElem = csBrowser.getFocusedOnGo().split("&");
             String[] lstValue;
-            for (int i = 0; i < lstElem.length; i++) {
-                lstValue = lstElem[i].split("=");
+            for (String s : lstElem) {
+                lstValue = s.split("=");
                 if (lstValue.length < 2) continue;
                 lov.put(lstValue[0], lstValue[1]);
             }
@@ -421,12 +420,13 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
 
         if(backAction.equals("quit") || backAction.length() == 0) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage("Czy chcesz zakończyć pracę?").setPositiveButton("Tak", dialogQuitClickListener).setNegativeButton("Nie", dialogQuitClickListener).show();
+            builder.setMessage(R.string.main_confirm_quit).setPositiveButton(R.string.main_yesno_yes, dialogQuitClickListener).setNegativeButton(R.string.main_yesno_no, dialogQuitClickListener).show();
             return;
         }
 
-        if(backAction.length() > 0 && !backAction.equals("block") && !backAction.equals("ignore")) {
+        if(!backAction.equals("block") && !backAction.equals("ignore")) {
             doAction(null, "back", null);
+            //noinspection UnnecessaryReturnStatement
             return;
         }
 
@@ -462,9 +462,9 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
 
                 if(lr == null) {
                     if(response.raw() != null)
-                        displayAlert(getString(R.string.loginBladSerwera), response.raw().toString());
+                        displayAlert(getString(R.string.login_server_error), response.raw().toString());
                     else
-                        displayAlert(getString(R.string.loginBladSerwera), "Problemy z połączeniem.");
+                        displayAlert(getString(R.string.login_server_error), getString(R.string.connection_error));
                     return;
                 }
 
@@ -475,9 +475,9 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
             public void onFailure(Call<MainResponseData> call, Throwable t) {
                 callAction.cancel();
                 if(t!=null && t.getCause() != null)
-                    displayAlert(getString(R.string.loginBladPolaczenia), t.getCause().getMessage());
+                    displayAlert(getString(R.string.login_connection_error), t.getCause().getMessage());
                 else
-                    displayAlert(getString(R.string.loginBladPolaczenia), "Serwer jest niedostępny.");
+                    displayAlert(getString(R.string.login_connection_error), getString(R.string.server_is_unreachable));
             }
 
             //
@@ -487,7 +487,7 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
 
     void processLayoutData(MainResponseData mrd) {
         List<MainResponseData.Action> actions;
-        int seq;
+
         if(mrd==null) return;
         actions = mrd.getAction();
         actions.sort(new MainResponseData.ActionComparator());
@@ -495,8 +495,6 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
         mrd.setPixelDensity(screenPixelDensity);
 
         for(MainResponseData.Action action : actions ) {
-            seq = action.getSequence();
-
             if(action.getType().equals("action")) {
                 processAction(action, mrd);
                 continue;
@@ -520,6 +518,7 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
 
             if(action.getType().equals("edit")) {
                 processActionEdit(action);
+                //noinspection UnnecessaryContinue
                 continue;
             }
         }
@@ -536,7 +535,7 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
     private void processBrowser(MainResponseData.Action action, MainResponseData mrd) {
         List<MainResponseData.Browser> columns;
         List<MainResponseData.Data> dataList;
-        int seq;
+
         if(mrd==null) return;
 
         csBrowser.setId(action.getSequence());
@@ -572,7 +571,7 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
 
     private void processMenu(MainResponseData.Action action, MainResponseData mrd) {
         List<MainResponseData.Menu> menuList;
-        int seq;
+
         if(mrd==null) return;
 
         binding.buttonForward.hide();
@@ -612,6 +611,7 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
             frameLayout.addView(csLabel);
         }
 
+        assert csLabel != null;
         csLabel.setReported( action.isReported() ) ;
         csLabel.setText( action.getText() );
         csLabel.setBoldItalic(action.getBold(), false);
@@ -707,6 +707,7 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
 
 
         }
+        assert csEdit != null;
         csEdit.setText( action.getText() );
         csEdit.setBoldItalic(action.getBold(), false);
     }
@@ -717,6 +718,7 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setMessage(action.getText()).setPositiveButton("1 - Tak", dialogConfirmClickListener).setNegativeButton("0 - Nie", dialogConfirmClickListener);
 
+            //noinspection Convert2Lambda
             builder.setOnKeyListener(new DialogInterface.OnKeyListener() {
                 @Override
                 public boolean onKey(DialogInterface dialogInterface, int keyCode, KeyEvent keyEvent) {
@@ -739,12 +741,6 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
             builder.show();
         }
 
-
-
-        if(action.getName().equals("nextAction")) {
-            nextAction = action.getText();
-        }
-
         if(action.getName().equals("backAction")) {
             backAction = action.getText();
         }
@@ -755,15 +751,15 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
 
 
         if(action.getName().equals("information")) {
-            displayAlert("Informacja", action.getText());
+            displayAlert(getString(R.string.alert_title_information), action.getText());
         }
 
         if(action.getName().equals("warning")) {
-            displayAlert("Ostrzeżenie", action.getText());
+            displayAlert(getString(R.string.alert_title_warning), action.getText());
         }
 
         if(action.getName().equals("error")) {
-            displayAlert("Błąd", action.getText());
+            displayAlert(getString(R.string.alert_title_error), action.getText());
         }
 
         if(action.getName().equals("clearBrowse")) {
@@ -799,7 +795,7 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
             listOfViews.clear();
             wantsGS1.clear();
             tabOrder.clear();
-            nextAction = "";
+
             backAction = "back";
 
 

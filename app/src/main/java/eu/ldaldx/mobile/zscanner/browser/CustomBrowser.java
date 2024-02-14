@@ -275,6 +275,8 @@ public class CustomBrowser extends LinearLayout implements IBrowserListener, IVi
         positionToSelect = position - 1;
         if(positionToSelect < 0) positionToSelect = 0;
 
+        rv.scrollToPosition(positionToSelect - 1);
+
         if(focusedView!=null) {
             focusedView.setBackground(null);
         }
@@ -310,6 +312,8 @@ public class CustomBrowser extends LinearLayout implements IBrowserListener, IVi
         if(focusedView!=null) {
             focusedView.setBackground(null);
         }
+
+        rv.scrollToPosition(position);
 
         focusedView = Objects.requireNonNull(rv.getLayoutManager()).findViewByPosition(position);
         if (focusedView != null) {

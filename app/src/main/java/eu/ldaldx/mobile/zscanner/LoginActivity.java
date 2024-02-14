@@ -38,7 +38,7 @@ public class LoginActivity extends AppCompatActivity {
     private String server_address;
     private String server_name;
     private String server_port;
-    RestApi RESTApiInterface;
+
 
     private class ZebraBroadcastReceiver extends BroadcastReceiver {
         @Override
@@ -50,9 +50,9 @@ public class LoginActivity extends AppCompatActivity {
                 //  Received a barcode scan
                 //
                 try {
-                    String decodedSource = intent.getStringExtra(getResources().getString(R.string.zebra_datawedge_intent_key_source));
+                    //String decodedSource = intent.getStringExtra(getResources().getString(R.string.zebra_datawedge_intent_key_source));
                     String decodedData = intent.getStringExtra(getResources().getString(R.string.zebra_datawedge_intent_key_data));
-                    String decodedLabelType = intent.getStringExtra(getResources().getString(R.string.zebra_datawedge_intent_key_label_type));
+                    //String decodedLabelType = intent.getStringExtra(getResources().getString(R.string.zebra_datawedge_intent_key_label_type));
 
                     if(gs1Decoder.decode(decodedData) > 0) {
 
@@ -80,18 +80,18 @@ public class LoginActivity extends AppCompatActivity {
     private void doLogin(String login, String password, String userToken) {
 
         if( server_name == null || server_name.length() == 0) {
-            displayAlert("Błąd", "Zdefiniuj serwer aplikacji.");
+            displayAlert(getString(R.string.alert_title_error), getString(R.string.login_define_app_server));
             return;
         }
 
         if( userToken.length() == 0 ) {
             if (login.length() == 0) {
-                displayAlert("Błąd", "Nazwa użytkownika nie może być pusta.");
+                displayAlert(getString(R.string.alert_title_error), getString(R.string.login_user_name_cannot_be_empty));
                 return;
             }
 
             if (password.length() == 0) {
-                displayAlert("Błąd", "Hasło nie może być puste.");
+                displayAlert(getString(R.string.alert_title_error), getString(R.string.login_password_cannot_be_empty));
                 return;
             }
         }
@@ -113,14 +113,14 @@ public class LoginActivity extends AppCompatActivity {
 
         callLogin.enqueue(new Callback<LoginResponseData>() {
             @Override
-            public void onResponse(Call<LoginResponseData> call, Response<LoginResponseData> response) {
+            public void onResponse(@NonNull Call<LoginResponseData> call, @NonNull Response<LoginResponseData> response) {
                 LoginResponseData lr = response.body();
 
                 if(lr == null) {
                     if(!response.raw().toString().isEmpty()) {
-                        displayAlert(getString(R.string.loginBladSerwera), response.raw().toString());
+                        displayAlert(getString(R.string.login_server_error), response.raw().toString());
                     } else {
-                        displayAlert(getString(R.string.loginBladSerwera), "Problemy z połączaniem.");
+                        displayAlert(getString(R.string.login_server_error), getString(R.string.login_connection_problem));
                     }
                     return;
                 }
@@ -132,19 +132,20 @@ public class LoginActivity extends AppCompatActivity {
                     startActivity(main);
 
                 } else {
-                    displayAlert("Błąd logowania", lr.getMessage());
+                    displayAlert(getString(R.string.login_logon_error), lr.getMessage());
                 }
+                //noinspection UnnecessaryReturnStatement
                 return;
 
             } // callLogin.enqueue
 
             @Override
-            public void onFailure(@NonNull Call<LoginResponseData> call, Throwable t) {
+            public void onFailure(@NonNull Call<LoginResponseData> call, @NonNull Throwable t) {
                 call.cancel();
-                if(t!=null && t.getCause() != null)
-                    displayAlert(getString(R.string.loginBladPolaczenia), t.getCause().getMessage());
+                if(t.getCause() != null)
+                    displayAlert(getString(R.string.login_connection_error), t.getCause().getMessage());
                 else
-                    displayAlert(getString(R.string.loginBladPolaczenia), "Serwer jest niedostępny.");
+                    displayAlert(getString(R.string.login_connection_error), getString(R.string.login_server_is_unavailable));
             }
         });
     }
@@ -164,8 +165,8 @@ public class LoginActivity extends AppCompatActivity {
             try {
                 Integer.parseInt(serverPort);
             } catch (NumberFormatException ex) {
-                displayAlert("Nieprawidłowa etykieta serwera", "Zeskanowana etykieta jest nieprawidłowa\n" +
-                        "Nieprawidłowy port: " + serverPort);
+                displayAlert(getString(R.string.login_incorrect_server_label), getString(R.string.login_scanned_incorrect_code) + "\n" +
+                        getString(R.string.login_incorrect_port) + serverPort);
                 return;
             }
 
@@ -186,10 +187,10 @@ public class LoginActivity extends AppCompatActivity {
         }
         else
         {
-            displayAlert("Nieprawidłowa etykieta serwera", "Zeskanowana etykieta jest nieprawidłowa\n" +
-                                "Nazwa serwera: " + serverName + "\n" +
-                                "Adres: " + serverAddress + "\n" +
-                                "Port: " + serverPort);
+            displayAlert(getString(R.string.login_incorrect_server_label), getString(R.string.login_scanned_incorrect_code) + "\n" +
+                                getString(R.string.login_server_name) + ": " + serverName + "\n" +
+                                getString(R.string.login_server_address) + ": " + serverAddress + "\n" +
+                                getString(R.string.login_server_port) + ": " + serverPort);
         }
 
     }
@@ -255,7 +256,7 @@ public class LoginActivity extends AppCompatActivity {
 
 
         } else {
-            txtServer.setText("kliknij i ustaw serwer");
+            txtServer.setText(R.string.login_click_and_set_server);
         }
 
         txtServer.setTypeface( null, Typeface.BOLD);
@@ -267,7 +268,7 @@ public class LoginActivity extends AppCompatActivity {
         createDataWedgeProfile(binding.getRoot().getContext());
 
 
-
+        // emulate scanning of user's label
         binding.button.setOnClickListener(v -> {
             //send broadcast
             Intent localIntent = new Intent(getString(R.string.zebra_activity_intent_filter_action));
@@ -275,10 +276,10 @@ public class LoginActivity extends AppCompatActivity {
 
             localIntent.addCategory(Intent.CATEGORY_DEFAULT);
             localIntent.putExtra(getString(R.string.zebra_datawedge_intent_key_source), "scanner");
-            localIntent.putExtra(getString(R.string.zebra_datawedge_intent_key_label_type), "typ_etykiety");
+            //localIntent.putExtra(getString(R.string.zebra_datawedge_intent_key_label_type), "type_of_label");
             //localIntent.putExtra(getString(R.string.zebra_datawedge_intent_key_data), GS1_Decoder.ctrlFNC1 + "91PROD" + GS1_Decoder.ctrlGS + "9210.0.0.11" + GS1_Decoder.ctrlGS + "9344044"+ GS1_Decoder.ctrlGS);
             // localIntent.putExtra(getString(R.string.zebra_datawedge_intent_key_data), GS1_Decoder.ctrlFNC1 + "91PROD" + GS1_Decoder.ctrlGS + "92192.168.43.1" + GS1_Decoder.ctrlGS + "9344044"+ GS1_Decoder.ctrlGS);
-            localIntent.putExtra(getString(R.string.zebra_datawedge_intent_key_data), GS1_Decoder.ctrlFNC1 + "94TOKEN-UZYTKOWNIKA" + GS1_Decoder.ctrlGS);
+            localIntent.putExtra(getString(R.string.zebra_datawedge_intent_key_data), GS1_Decoder.ctrlFNC1 + "94QRCODE_FOR_USER_1" + GS1_Decoder.ctrlGS);
 
             sendBroadcast(localIntent);
         });

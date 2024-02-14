@@ -1,0 +1,51 @@
+<resources>
+    <string name="app_name">ZScanner</string>
+    <string name="zebra_activity_intent_filter_action">eu.ldaldx.mobile.zscanner</string>
+    <string name="zebra_datawedge_intent_key_source">com.symbol.datawedge.source</string>
+    <string name="zebra_datawedge_intent_key_data">com.symbol.datawedge.data_string</string>
+    <string name="zebra_datawedge_intent_key_label_type">com.symbol.datawedge.label_type</string>
+    <string name="zscanner_profile_key">eu.ldaldx.mobile.zscanner.PREFERENCE_FILE_KEY</string>
+    <string name="zscanner_preference_server_name">server_name</string>
+    <string name="zscanner_preference_server_adress">server_address</string>
+    <string name="zscanner_preference_server_port">server_port</string>
+    <string name="alert_title_information">Informacja</string>
+    <string name="alert_title_warning">Ostrzeżenie</string>
+    <string name="alert_title_error">Błąd</string>
+
+    <string name="login_server_error">Błąd serwera</string>
+    <string name="login_connection_error">Błąd połączenia</string>
+    <string name="login_loginButton_text">Rozpocznij pracę</string>
+    <string name="login_txtServer_hint">Serwer</string>
+    <string name="login_editUser_text">Użytkownik</string>
+    <string name="login_editPassword_hint">Hasło</string>
+    <string name="login_user_name_cannot_be_empty">Nazwa użytkownika nie może być pusta.</string>
+    <string name="login_password_cannot_be_empty">Hasło nie może być puste.</string>
+    <string name="login_define_app_server">Zdefiniuj serwer aplikacji.</string>
+    <string name="login_connection_problem">Problemy z połączeniem.</string>
+    <string name="login_logon_error">Błąd logowania</string>
+    <string name="login_server_is_unavailable">Serwer jest niedostępny.</string>
+    <string name="login_incorrect_server_label">Nieprawidłowa etykieta serwera</string>
+    <string name="login_incorrect_port">"Nieprawidłowy port: "</string>
+    <string name="login_scanned_incorrect_code">Zeskanowana etykieta jest nieprawidłowa</string>
+    <string name="login_server_name">"Nazwa serwera"</string>
+    <string name="login_server_address">Adres</string>
+    <string name="login_server_port">Port</string>
+    <string name="login_click_and_set_server">kliknij i ustaw serwer</string>
+
+    <string name="main_floating_go">Dalej</string>
+    <string name="main_confirm_quit">Czy chcesz zakończyć pracę?</string>
+    <string name="main_yesno_yes">Tak</string>
+    <string name="main_yesno_no">Nie</string>
+    <string name="server_is_unreachable">Serwer jest niedostępny.</string>
+    <string name="connection_error">Problemy z połączeniem.</string>
+
+    <string name="txt_menu_entry">txt_menu_entry</string>
+    <string name="txt_textview">txt_TextView</string>
+    <string name="txt_tst">txt_Tst</string>
+
+
+    <string name="act_login_app_title">WMS logowanie</string>
+    <string name="act_login_enter_pass_or_scan_label">Wprowadź hasło lub zeskanuj etykietę</string>
+
+
+</resources>

@@ -14,7 +14,7 @@
         android:background="@drawable/title_bar"
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme"
-        app:title="WMS logowanie" />
+        app:title="@string/act_login_app_title" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/txtServer_title"
@@ -68,7 +68,7 @@
     <com.google.android.material.textfield.TextInputLayout
         app:endIconMode = "password_toggle"
         app:helperTextEnabled="true"
-        app:helperText="Wprowadź hasło lub zeskanuj etykietę"
+        app:helperText="@string/act_login_enter_pass_or_scan_label"
         android:layout_marginStart = "0dp"
         android:layout_marginTop = "250dp"
         android:layout_width="match_parent"

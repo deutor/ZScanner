@@ -61,7 +61,7 @@ public class MainResponseData implements Serializable {
   }
 
   public void setPixelDensity(float screenPixelDensity) {
-      this.screenPixelDensity = screenPixelDensity;
+      MainResponseData.screenPixelDensity = screenPixelDensity;
   }
 
   public static class Data implements Serializable {

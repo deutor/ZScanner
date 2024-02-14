@@ -1,7 +1,5 @@
 <resources>
     <string name="app_name">ZScanner</string>
-    <string name="loginBladSerwera">Błąd serwera</string>
-    <string name="loginBladPolaczenia">Błąd połączenia</string>
     <string name="zebra_activity_intent_filter_action">eu.ldaldx.mobile.zscanner</string>
     <string name="zebra_datawedge_intent_key_source">com.symbol.datawedge.source</string>
     <string name="zebra_datawedge_intent_key_data">com.symbol.datawedge.data_string</string>
@@ -10,14 +8,44 @@
     <string name="zscanner_preference_server_name">server_name</string>
     <string name="zscanner_preference_server_adress">server_address</string>
     <string name="zscanner_preference_server_port">server_port</string>
-    <string name="login_loginButton_text">Rozpocznij pracę</string>
-    <string name="login_txtServer_hint">Serwer</string>
-    <string name="login_editUser_text">Użytkownik</string>
-    <string name="login_editPassword_hint">Hasło</string>
-    <string name="main_floating_go">Dalej</string>
+    <string name="alert_title_information">Information</string>
+    <string name="alert_title_warning">Warning</string>
+    <string name="alert_title_error">Error</string>
+
+    <string name="login_server_error">Server error</string>
+    <string name="login_connection_error">Connection error</string>
+    <string name="login_loginButton_text">Start!</string>
+    <string name="login_txtServer_hint">Server</string>
+    <string name="login_editUser_text">User</string>
+    <string name="login_editPassword_hint">Password</string>
+    <string name="login_user_name_cannot_be_empty">User name cannot be empty.</string>
+    <string name="login_password_cannot_be_empty">Password cannot be empty.</string>
+    <string name="login_define_app_server">Define app server.</string>
+    <string name="login_connection_problem">Connection problem.</string>
+    <string name="login_logon_error">Logon error</string>
+    <string name="login_server_is_unavailable">Server is unreachable.</string>
+    <string name="login_incorrect_server_label">Incorrect server label</string>
+    <string name="login_incorrect_port">"Incorrect port: "</string>
+    <string name="login_scanned_incorrect_code">Incorrect label</string>
+    <string name="login_server_name">"Server name"</string>
+    <string name="login_server_address">Address</string>
+    <string name="login_server_port">Port</string>
+    <string name="login_click_and_set_server">click and set server</string>
+
+    <string name="main_floating_go">Next</string>
+    <string name="main_confirm_quit">Do you want to quit?</string>
+    <string name="main_yesno_yes">Yes</string>
+    <string name="main_yesno_no">No</string>
+    <string name="server_is_unreachable">Server is unreachable.</string>
+    <string name="connection_error">Connection problem.</string>
+
     <string name="txt_menu_entry">txt_menu_entry</string>
     <string name="txt_textview">txt_TextView</string>
     <string name="txt_tst">txt_Tst</string>
+
+
+    <string name="act_login_app_title">WMS login</string>
+    <string name="act_login_enter_pass_or_scan_label">Enter password or scan your label</string>
 
 
 </resources>

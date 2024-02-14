@@ -26,7 +26,7 @@ public class MainRequestData implements Serializable {
   @Json(name = "sessionID")
   private String sessionID;
 
-  private List<MainRequestData.Data> data = new ArrayList<>();
+  private final List<MainRequestData.Data> data = new ArrayList<>();
 
   public void setDataFromLov(HashMap<String, String> lov) {
       if(lov == null) return;
