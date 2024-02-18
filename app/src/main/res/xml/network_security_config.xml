@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <base-config>
+        <trust-anchors>
+            <!-- Override trust anchors, accept all certificates -->
+            <certificates src="user" />
+        </trust-anchors>
+    </base-config>
+    <!-- Debug overrides -->
+    <debug-overrides>
+        <!-- Also accept all certificates in debug mode if needed -->
+        <trust-anchors>
+            <certificates src="user" />
+        </trust-anchors>
+    </debug-overrides>
+</network-security-config>

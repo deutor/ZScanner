@@ -99,8 +99,10 @@ public class LoginActivity extends AppCompatActivity {
         String password_sha = get_SHA_256_SecurePassword(password, login);
 
         //   if (!validateData()) return;
-        RestClient.getClient(server_address, server_port);
-        RestApi api = RestClient.getApi();
+        RestClient rs = new RestClient();
+
+        rs.getClient(server_address, server_port);
+        RestApi api = rs.getApi();
 
         LoginRequestData loginRequestData = new LoginRequestData();
         loginRequestData.setUserName(login);
