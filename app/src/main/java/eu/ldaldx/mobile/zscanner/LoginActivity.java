@@ -40,43 +40,51 @@ public class LoginActivity extends AppCompatActivity {
     private String server_port;
 
 
-    private class ZebraBroadcastReceiver extends BroadcastReceiver {
+    private class BarcodeScannerBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
+            String decodedData = "";
 
-            if (action.equals( getString(R.string.zebra_activity_intent_filter_action))) {
-                //
-                //  Received a barcode scan
-                //
-                try {
+            try {
+                if (action.equals( getString(R.string.zebra_activity_intent_filter_action))) {
                     //String decodedSource = intent.getStringExtra(getResources().getString(R.string.zebra_datawedge_intent_key_source));
-                    String decodedData = intent.getStringExtra(getResources().getString(R.string.zebra_datawedge_intent_key_data));
+                    decodedData = intent.getStringExtra(getResources().getString(R.string.zebra_datawedge_intent_key_data));
                     //String decodedLabelType = intent.getStringExtra(getResources().getString(R.string.zebra_datawedge_intent_key_label_type));
-
-                    if(gs1Decoder.decode(decodedData) > 0) {
-
-                        //displayAlert("gs1", gs1Decoder.getAIs());
-
-                        if(gs1Decoder.containsKey("91")) setServerFromGS1Code();
-                        else
-                        {
-                            if(gs1Decoder.containsKey("94")) doLogin("", "", gs1Decoder.getValueForAI("94"));
-                            else doSendDataToFocused(gs1Decoder.getRawData());
-                        }
-                    } else doSendDataToFocused(gs1Decoder.getRawData());
-                } catch (Exception e) {
-
-                    //
-                    // Catch if the UI does not exist when broadcast is received
-                    //
                 }
+
+                if(action.equals("nlscan.action.SCANNER_RESULT")) {
+                    decodedData=intent.getStringExtra("SCAN_BARCODE1");
+//                    final String scanStatus=intent.getStringExtra("SCAN_STATE");
+                }
+            } catch (Exception e) {
+                // ignore exceptions from barcode scanner
+                return;
             }
-        }
+
+            if(decodedData.equals("")) return;
+
+            try {
+
+                if(gs1Decoder.decode(decodedData) > 0) {
+
+                    //displayAlert("gs1", gs1Decoder.getAIs());
+
+                    if(gs1Decoder.containsKey("91")) setServerFromGS1Code();
+                    else
+                    {
+                        if(gs1Decoder.containsKey("94")) doLogin("", "", gs1Decoder.getValueForAI("94"));
+                        else doSendDataToFocused(gs1Decoder.getRawData());
+                    }
+                } else doSendDataToFocused(gs1Decoder.getRawData());
+            } catch (Exception e) {
+                // ignore errors from barcode scanner
+            }
+        } // onReceive
     }
 
-    ZebraBroadcastReceiver zebraBroadcastReceiver;
-
+    BarcodeScannerBroadcastReceiver barcodeScannerBroadcastReceiver;
+    
     private void doLogin(String login, String password, String userToken) {
 
         if( server_name == null || server_name.length() == 0) {
@@ -214,19 +222,22 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        if(zebraBroadcastReceiver != null) unregisterReceiver(zebraBroadcastReceiver);
+        if(barcodeScannerBroadcastReceiver != null) unregisterReceiver(barcodeScannerBroadcastReceiver);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        if(zebraBroadcastReceiver == null) zebraBroadcastReceiver = new ZebraBroadcastReceiver();
+        if(barcodeScannerBroadcastReceiver == null) barcodeScannerBroadcastReceiver = new BarcodeScannerBroadcastReceiver();
 
         IntentFilter filter = new IntentFilter();
         filter.addCategory(Intent.CATEGORY_DEFAULT);
         filter.addAction(getResources().getString(R.string.zebra_activity_intent_filter_action));
-        registerReceiver(zebraBroadcastReceiver, filter);
+        registerReceiver(barcodeScannerBroadcastReceiver, filter);
+
+        IntentFilter newlandFilter= new IntentFilter("nlscan.action.SCANNER_RESULT");
+        registerReceiver(barcodeScannerBroadcastReceiver, newlandFilter);
     }
 
     @Override
@@ -291,13 +302,27 @@ public class LoginActivity extends AppCompatActivity {
         binding.loginButton.setOnClickListener(v -> {
             doLogin(editUser.getText().toString(), editPassword.getText().toString(), "");
         });
+
+        //newland change scan type
+        Intent intent = new Intent ("ACTION_BAR_SCANCFG");
+        intent.putExtra("EXTRA_SCAN_MODE", 3);  // output via API
+        getApplicationContext().sendBroadcast(intent);
+
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         try {
-            if (zebraBroadcastReceiver != null) unregisterReceiver(zebraBroadcastReceiver);
+
+            // newland restore output to edit text
+            Intent intent = new Intent ("ACTION_BAR_SCANCFG");
+            intent.putExtra("EXTRA_SCAN_MODE", 1);  // output to edit text
+            getApplicationContext().sendBroadcast(intent);
+
+            if (barcodeScannerBroadcastReceiver != null) unregisterReceiver(barcodeScannerBroadcastReceiver);
+
+
         } catch (Exception ex) {
             // do nothing - application is destroyed anyway
         }

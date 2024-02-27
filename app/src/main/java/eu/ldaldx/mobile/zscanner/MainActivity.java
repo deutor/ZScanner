@@ -56,21 +56,31 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
     private final ArrayList<IView> tabOrder = new ArrayList<>();
 
 
-    private final BroadcastReceiver zebraBroadcastReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver barcodeScannerBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, @NonNull Intent intent) {
             String action = intent.getAction();
+            String decodedData = "";
 
-            if (action.equals(getResources().getString(R.string.zebra_activity_intent_filter_action))) {
-                //
-                //  Received a barcode scan
-                //
-
-                try {
+            try {
+                if (action.equals( getString(R.string.zebra_activity_intent_filter_action))) {
                     //String decodedSource = intent.getStringExtra(getResources().getString(R.string.zebra_datawedge_intent_key_source));
-                    String decodedData = intent.getStringExtra(getResources().getString(R.string.zebra_datawedge_intent_key_data));
+                    decodedData = intent.getStringExtra(getResources().getString(R.string.zebra_datawedge_intent_key_data));
                     //String decodedLabelType = intent.getStringExtra(getResources().getString(R.string.zebra_datawedge_intent_key_label_type));
+                }
 
+                if(action.equals("nlscan.action.SCANNER_RESULT")) {
+                    decodedData=intent.getStringExtra("SCAN_BARCODE1");
+//                    final String scanStatus=intent.getStringExtra("SCAN_STATE");
+                }
+            } catch (Exception e) {
+                // ignore exceptions from barcode scanner
+                return;
+            }
+
+            if(decodedData.equals("")) return;
+
+            try {
                     int numUsedGS1 = 0;
                     if(gs1Decoder.decode(decodedData) > 0) {
                         for (String key : wantsGS1.keySet()) {
@@ -89,13 +99,9 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
                     onFrameGo("scanner");
 
                 } catch (Exception e) {
-
-                    //
-                    // Catch if the UI does not exist when broadcast is received
-                    //
+                    // ignore exceptions from barcode scanner
                 }
             }
-        }
     };
 
     private void displayScanResult(Intent initiatingIntent, String howDataReceived)
@@ -359,8 +365,15 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
         IntentFilter filter = new IntentFilter();
         filter.addCategory(Intent.CATEGORY_DEFAULT);
         filter.addAction(getResources().getString(R.string.zebra_activity_intent_filter_action));
-        registerReceiver(zebraBroadcastReceiver, filter);
+        registerReceiver(barcodeScannerBroadcastReceiver, filter);
 
+        IntentFilter newlandFilter= new IntentFilter("nlscan.action.SCANNER_RESULT");
+        registerReceiver(barcodeScannerBroadcastReceiver, newlandFilter);
+
+        //newland change scan type
+        Intent intent = new Intent ("ACTION_BAR_SCANCFG");
+        intent.putExtra("EXTRA_SCAN_MODE", 3);  // output via API
+        getApplicationContext().sendBroadcast(intent);
 
         /* 320x420 */
 
@@ -436,7 +449,19 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(zebraBroadcastReceiver != null) unregisterReceiver(zebraBroadcastReceiver);
+
+        try {
+            // newland restore output to edit text
+            Intent intent = new Intent("ACTION_BAR_SCANCFG");
+            intent.putExtra("EXTRA_SCAN_MODE", 1);  // output to edit text
+            getApplicationContext().sendBroadcast(intent);
+
+
+            if (barcodeScannerBroadcastReceiver != null)
+                unregisterReceiver(barcodeScannerBroadcastReceiver);
+        } catch(Exception ex) {
+            // do nothing - application is destroyed anyway
+        }
     }
 
 
