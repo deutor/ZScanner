@@ -12,7 +12,7 @@
             android:background="@drawable/browser_column_name_border"
             android:id="@+id/browserWithTitleHeader"
             android:layout_width="match_parent"
-            android:layout_height="24dp"
+            android:layout_height="24sp"
             android:orientation="horizontal"
             android:clickable="false"
 
