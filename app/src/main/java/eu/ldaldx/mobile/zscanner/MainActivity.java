@@ -73,6 +73,11 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
                     decodedData=intent.getStringExtra("SCAN_BARCODE1");
 //                    final String scanStatus=intent.getStringExtra("SCAN_STATE");
                 }
+
+                if(action.equals("com.datalogic.decodewedge.decode_action")) {
+                    // datalogic adds \n to scanned code - so we need to remove it
+                    decodedData = intent.getStringExtra("com.datalogic.decode.intentwedge.barcode_string").trim();
+                }
             } catch (Exception e) {
                 // ignore exceptions from barcode scanner
                 return;
@@ -374,6 +379,11 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
         Intent intent = new Intent ("ACTION_BAR_SCANCFG");
         intent.putExtra("EXTRA_SCAN_MODE", 3);  // output via API
         getApplicationContext().sendBroadcast(intent);
+
+        IntentFilter datalogicFilter= new IntentFilter("com.datalogic.decodewedge.decode_action");
+        datalogicFilter.addCategory("com.datalogic.decodewedge.decode_category");
+        registerReceiver(barcodeScannerBroadcastReceiver, datalogicFilter);
+
 
         /* 320x420 */
 
@@ -806,6 +816,10 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
             csBrowser.show();
         }
 
+        if(action.getName().equals("setMenu")) {
+            String menuItemToSelect = action.getText();
+            csMenu.selectMenuItem(menuItemToSelect);
+        }
 
         if(action.getName().equals("clear")) {
             csBrowser.hide();

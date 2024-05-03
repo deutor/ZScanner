@@ -20,14 +20,20 @@ public class CustomMenuAdapter extends RecyclerView.Adapter<CustomMenuAdapter.Vi
     private ArrayList<CustomMenuEntry> localCmeEntries;
     private IMenuListener menuListener;
 
+    private int defaultSelectedPos = 0;
 
     @Override
     public void onViewAttachedToWindow(@NonNull CustomMenuAdapter.ViewHolder holder) {
         super.onViewAttachedToWindow(holder);
 
-        if(holder.getAdapterPosition() == 0) {
-            menuListener.onMenuItemClickUp(-1);
+
+        if(holder.getAdapterPosition() == defaultSelectedPos) {
+            menuListener.onMenuItemClickUp(defaultSelectedPos);
         }
+    }
+
+    public void setDefaultMenuItem(int i) {
+        defaultSelectedPos = i;
     }
 
     /**

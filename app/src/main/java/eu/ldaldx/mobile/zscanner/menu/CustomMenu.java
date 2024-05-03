@@ -131,13 +131,16 @@ public class CustomMenu extends LinearLayout implements IMenuListener, IView {
 
     public void clear() {
         cmeEntries.clear();
+        cma.setDefaultMenuItem(0);
     }
     public void addItem(String label, String action, String actionArgs) {
         cmeEntries.add(new CustomMenuEntry(label, action, actionArgs));
     }
 
     public void onMenuItemClick(int position, String action, String actionArgs) {
-        mainListener.executeMenuAction(action, actionArgs);
+        CustomMenuEntry cme = cmeEntries.get(position);
+
+        mainListener.executeMenuAction(action, actionArgs + "&menuSelected=" + cme.getMenuEntry());
     }
 
     @Override
@@ -196,7 +199,7 @@ public class CustomMenu extends LinearLayout implements IMenuListener, IView {
             if(cme.getMenuEntry() == null) continue;
 
             if( cme.getMenuEntry().charAt(0) == Integer.toString(numeric).charAt(0)) {
-                mainListener.executeMenuAction(cme.getAction(), cme.getActionArgs());
+                mainListener.executeMenuAction(cme.getAction(), cme.getActionArgs() + "&menuSelected=" + cme.getMenuEntry());
                 break;
             }
         }
@@ -212,5 +215,19 @@ public class CustomMenu extends LinearLayout implements IMenuListener, IView {
 
     public void setBackAction(String backAction) {
         this.backAction = backAction;
+    }
+
+    public void selectMenuItem(String menuItemToSelect) {
+        if(menuItemToSelect == null || menuItemToSelect.isEmpty()) return;
+
+        for (int i = 0; i < cmeEntries.size(); i++) {
+
+            CustomMenuEntry entry = cmeEntries.get(i);
+
+            if (menuItemToSelect.equals(entry.getMenuEntry())) {
+                cma.setDefaultMenuItem(i + 1);
+                break;
+            }
+        }
     }
 }

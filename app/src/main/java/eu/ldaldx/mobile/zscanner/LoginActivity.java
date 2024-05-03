@@ -57,6 +57,12 @@ public class LoginActivity extends AppCompatActivity {
                     decodedData=intent.getStringExtra("SCAN_BARCODE1");
 //                    final String scanStatus=intent.getStringExtra("SCAN_STATE");
                 }
+
+                if(action.equals("com.datalogic.decodewedge.decode_action")) {
+                    // datalogic adds \n to scanned code - so we need to remove it
+                    decodedData = intent.getStringExtra("com.datalogic.decode.intentwedge.barcode_string").trim();
+                }
+
             } catch (Exception e) {
                 // ignore exceptions from barcode scanner
                 return;
@@ -105,21 +111,29 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         String password_sha = get_SHA_256_SecurePassword(password, login);
+        RestApi api;
+        LoginRequestData loginRequestData;
+        Call<LoginResponseData> callLogin;
 
         //   if (!validateData()) return;
-        RestClient rs = new RestClient();
+        try {
+            RestClient rs = new RestClient();
 
-        rs.getClient(server_address, server_port);
-        RestApi api = rs.getApi();
+            rs.getClient(server_address, server_port);
+            api = rs.getApi();
 
-        LoginRequestData loginRequestData = new LoginRequestData();
-        loginRequestData.setUserName(login);
-        loginRequestData.setPassword(password_sha);
-        loginRequestData.setUserToken(userToken);
-        loginRequestData.setAction("doLogin");
-        loginRequestData.setVersion(1);
-
-        Call<LoginResponseData> callLogin = api.doLogin(loginRequestData);
+            loginRequestData = new LoginRequestData();
+            loginRequestData.setUserName(login);
+            loginRequestData.setPassword(password_sha);
+            loginRequestData.setUserToken(userToken);
+            loginRequestData.setAction("doLogin");
+            loginRequestData.setVersion(1);
+            callLogin = api.doLogin(loginRequestData);
+        }
+        catch(Exception ex) {
+            displayAlert(getString(R.string.alert_title_error), ex.toString());
+            throw new RuntimeException(ex.toString());
+        }
 
         callLogin.enqueue(new Callback<LoginResponseData>() {
             @Override
@@ -155,7 +169,7 @@ public class LoginActivity extends AppCompatActivity {
                 if(t.getCause() != null)
                     displayAlert(getString(R.string.login_connection_error), t.getCause().getMessage());
                 else
-                    displayAlert(getString(R.string.login_connection_error), getString(R.string.login_server_is_unavailable));
+                    displayAlert(getString(R.string.login_connection_error), getString(R.string.login_server_is_unavailable) + t.toString());
             }
         });
     }
@@ -238,6 +252,10 @@ public class LoginActivity extends AppCompatActivity {
 
         IntentFilter newlandFilter= new IntentFilter("nlscan.action.SCANNER_RESULT");
         registerReceiver(barcodeScannerBroadcastReceiver, newlandFilter);
+
+        IntentFilter datalogicFilter= new IntentFilter("com.datalogic.decodewedge.decode_action");
+        datalogicFilter.addCategory("com.datalogic.decodewedge.decode_category");
+        registerReceiver(barcodeScannerBroadcastReceiver, datalogicFilter);
     }
 
     @Override
