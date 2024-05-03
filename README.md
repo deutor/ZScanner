@@ -4,23 +4,10 @@ App server sends json with screen / fields definition, ZScanner displays that sc
 gathers user input (you can scan barcodes or enter data manually), send back json with field values
 for processing by app server. 
 
- Zebra MC9300
-----------                    -----------------------
-|        |                   |                      |
-|ZScanner|                   |                      |
-| Android|                   |  ZServer4MC          |
-\        /      REST API     |  java app server     |
-  |     |     <----------->  |  Linux / Windows     |
-  |     |                     -----------------------
-  |     |                              /|\
-  |     |                               |
-  -------                               |
-                                       \|/
-                              ----------------------                   ----------------------               --------------------
-                              |   PostgreSQL DB    |                  |                     |              |                    |
-                              |                    | <--------------> |  ERP Connector      | <----------> |      ERP           |
-                              |                    |                  |                     |              |                    |
-                              ----------------------                  -----------------------               --------------------
+
+![zscanner drawio](https://github.com/deutor/ZScanner/assets/21099156/2a6427f8-6a55-43a4-929b-885713d1dc18)
+
+
 
 Typical usage looks like:
 1) App server sends info "create screen "Relocate item", add fill-in named "code" with empty value, add fill-in named "quantity" with empty value,
