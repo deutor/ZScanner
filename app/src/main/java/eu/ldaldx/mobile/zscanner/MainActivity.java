@@ -7,6 +7,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
+import android.graphics.Rect;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.InputFilter;
 import android.text.InputType;
@@ -14,6 +16,7 @@ import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.WindowMetrics;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
@@ -54,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
     private final HashMap<String,View> wantsGS1 = new HashMap<>();
 
     private final ArrayList<IView> tabOrder = new ArrayList<>();
+    private String nextAction = "";
 
 
     private final BroadcastReceiver barcodeScannerBroadcastReceiver = new BroadcastReceiver() {
@@ -61,6 +65,8 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
         public void onReceive(Context context, @NonNull Intent intent) {
             String action = intent.getAction();
             String decodedData = "";
+
+            if(action == null) return;
 
             try {
                 if (action.equals( getString(R.string.zebra_activity_intent_filter_action))) {
@@ -83,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
                 return;
             }
 
-            if(decodedData.equals("")) return;
+            if(decodedData == null || decodedData.isEmpty()) return;
 
             try {
                     int numUsedGS1 = 0;
@@ -289,6 +295,23 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
 
 
     @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_ENTER || keyCode == KeyEvent.KEYCODE_NUMPAD_ENTER) {
+            // Jeśli mamy zdefiniowaną nextAction (np. "go") z serwera, wykonaj ją
+            if ("go".equals(nextAction)) {
+                onFrameGo("goBtn");
+                return true;
+            }
+            // Domyślnie, jeśli nic nie ma fokusu i naciśnięto Enter, symuluj przycisk Dalej
+            if (tabOrder.isEmpty() && !csMenu.isVisible()) {
+                onFrameGo("goBtn");
+                return true;
+            }
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -338,10 +361,17 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
 
         screenPixelDensity = getApplicationContext().getResources().getDisplayMetrics().density;
 
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-
-        int width = displayMetrics.widthPixels;
+        int width;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            WindowMetrics windowMetrics = getWindowManager().getCurrentWindowMetrics();
+            Rect bounds = windowMetrics.getBounds();
+            width = bounds.width();
+        } else {
+            DisplayMetrics displayMetrics = new DisplayMetrics();
+            //noinspection deprecation
+            getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+            width = displayMetrics.widthPixels;
+        }
 
         frameLayout = findViewById(R.id.mainLayout);
         mainToolbar = binding.mainToolbar;
@@ -367,6 +397,14 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
         );
 
 
+        /* 320x420 */
+
+    }  // onCreate
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
         IntentFilter filter = new IntentFilter();
         filter.addCategory(Intent.CATEGORY_DEFAULT);
         filter.addAction(getResources().getString(R.string.zebra_activity_intent_filter_action));
@@ -375,19 +413,32 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
         IntentFilter newlandFilter= new IntentFilter("nlscan.action.SCANNER_RESULT");
         registerReceiver(barcodeScannerBroadcastReceiver, newlandFilter);
 
-        //newland change scan type
-        Intent intent = new Intent ("ACTION_BAR_SCANCFG");
-        intent.putExtra("EXTRA_SCAN_MODE", 3);  // output via API
-        getApplicationContext().sendBroadcast(intent);
-
         IntentFilter datalogicFilter= new IntentFilter("com.datalogic.decodewedge.decode_action");
         datalogicFilter.addCategory("com.datalogic.decodewedge.decode_category");
         registerReceiver(barcodeScannerBroadcastReceiver, datalogicFilter);
 
+        //newland change scan type
+        Intent intent = new Intent ("ACTION_BAR_SCANCFG");
+        intent.putExtra("EXTRA_SCAN_MODE", 3);  // output via API
+        getApplicationContext().sendBroadcast(intent);
+    }
 
-        /* 320x420 */
+    @Override
+    protected void onPause() {
+        super.onPause();
 
-    }  // onCreate
+        try {
+            // newland restore output to edit text
+            Intent intent = new Intent("ACTION_BAR_SCANCFG");
+            intent.putExtra("EXTRA_SCAN_MODE", 1);  // output to edit text
+            getApplicationContext().sendBroadcast(intent);
+
+            if (barcodeScannerBroadcastReceiver != null)
+                unregisterReceiver(barcodeScannerBroadcastReceiver);
+        } catch (Exception ex) {
+            // ignore
+        }
+    }
 
     DialogInterface.OnClickListener dialogQuitClickListener = new DialogInterface.OnClickListener() {
         @Override
@@ -453,31 +504,43 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
             return;
         }
 
-        //super.onBackPressed();
+        super.onBackPressed();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
-        try {
-            // newland restore output to edit text
-            Intent intent = new Intent("ACTION_BAR_SCANCFG");
-            intent.putExtra("EXTRA_SCAN_MODE", 1);  // output to edit text
-            getApplicationContext().sendBroadcast(intent);
-
-
-            if (barcodeScannerBroadcastReceiver != null)
-                unregisterReceiver(barcodeScannerBroadcastReceiver);
-        } catch(Exception ex) {
-            // do nothing - application is destroyed anyway
-        }
     }
 
 
     protected void doAction(HashMap<String,String> lov, String actionName, String actionArgs) {
         //   if (!validateData()) return;
         RestApi restApi = RestClient.getApi();
+
+        if (restApi == null) {
+            // API client is not initialized (e.g., after process death).
+            // Attempt to re-initialize using saved server settings.
+            android.content.SharedPreferences preferences = getSharedPreferences(getString(R.string.zscanner_profile_key), MODE_PRIVATE);
+            String server = preferences.getString(getString(R.string.zscanner_preference_server_adress), "");
+            String port = preferences.getString(getString(R.string.zscanner_preference_server_port), "");
+
+            if (!server.isEmpty() && !port.isEmpty()) {
+                try {
+                    new RestClient().getClient(server, port);
+                    restApi = RestClient.getApi();
+                } catch (Exception ignored) { }
+            }
+        }
+
+        if (restApi == null) {
+            // If still null, we must return to LoginActivity
+            Intent intent = new Intent(this, LoginActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+            return;
+        }
+
         MainRequestData mainRequestData = new MainRequestData();
 
         mainRequestData.setSessionID(sessionID);
@@ -574,6 +637,7 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
         if(mrd==null) return;
 
         csBrowser.setId(action.getSequence());
+        if(tabOrder.contains(csBrowser)) tabOrder.remove(csBrowser);
         tabOrder.add( csBrowser );
         columns = mrd.getBrowser();
 
