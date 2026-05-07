@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.WindowMetrics;
 import android.widget.FrameLayout;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -315,6 +316,40 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+
+                if (csMenu.isVisible()) {
+                    if (csMenu.getBackAction() != null && csMenu.getBackAction().equals("hide")) {
+                        actionHideMenu();
+                        return;
+                    }
+                }
+
+                if (backAction.equals("quit") || backAction.length() == 0) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                    builder.setMessage(R.string.main_confirm_quit)
+                            .setPositiveButton(R.string.main_yesno_yes, dialogQuitClickListener)
+                            .setNegativeButton(R.string.main_yesno_no, dialogQuitClickListener)
+                            .show();
+                    return;
+                }
+
+                if (!backAction.equals("block") && !backAction.equals("ignore")) {
+                    doAction(null, "back", null);
+                    return;
+                }
+
+/*
+                // odpowiednik: super.onBackPressed()
+                setEnabled(false);
+                getOnBackPressedDispatcher().onBackPressed();
+ */
+            }
+        });
+
+
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
@@ -481,30 +516,6 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
 
         if(tabOrder.size() > 0) tabOrder.get(0).setFocused();
         else binding.buttonForward.requestFocus();
-    }
-
-    @Override
-    public void onBackPressed() {
-        if(csMenu.isVisible()) {
-            if(csMenu.getBackAction() != null && csMenu.getBackAction().equals("hide")) {
-                actionHideMenu();
-                return;
-            }
-        }
-
-        if(backAction.equals("quit") || backAction.length() == 0) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage(R.string.main_confirm_quit).setPositiveButton(R.string.main_yesno_yes, dialogQuitClickListener).setNegativeButton(R.string.main_yesno_no, dialogQuitClickListener).show();
-            return;
-        }
-
-        if(!backAction.equals("block") && !backAction.equals("ignore")) {
-            doAction(null, "back", null);
-            //noinspection UnnecessaryReturnStatement
-            return;
-        }
-
-        super.onBackPressed();
     }
 
     @Override
