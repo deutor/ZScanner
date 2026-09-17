@@ -26,6 +26,12 @@ public class MainRequestData implements Serializable {
   @Json(name = "sessionID")
   private String sessionID;
 
+  @Json(name = "requestId")
+  private String requestId;
+
+  @Json(name = "expectedAppStackId")
+  private Integer expectedAppStackId;
+
   private final List<MainRequestData.Data> data = new ArrayList<>();
 
   public void setDataFromLov(HashMap<String, String> lov) {
@@ -44,10 +50,41 @@ public class MainRequestData implements Serializable {
     this.request = reqAction;
   }
 
+  public String getRequest() {
+    return this.request;
+  }
+
+  public String getActionArgs() {
+    return this.actionArgs;
+  }
+
+  public String getSessionID() {
+    return this.sessionID;
+  }
+
+  public String getRequestId() {
+    return this.requestId;
+  }
+
+  public void setRequestId(String requestId) {
+    this.requestId = requestId;
+  }
+
+  public Integer getExpectedAppStackId() {
+    return this.expectedAppStackId;
+  }
+
+  public void setExpectedAppStackId(Integer expectedAppStackId) {
+    this.expectedAppStackId = expectedAppStackId;
+  }
+
   public void setVersion(Integer version) {
     this.version = version;
   }
 
+  public Integer getVersion() {
+    return this.version;
+  }
 
   public void setSessionID(String sessionID) {
     this.sessionID = sessionID;
@@ -55,6 +92,14 @@ public class MainRequestData implements Serializable {
   public void setUserID(String userID) {
         this.userID = userID;
     }
+
+  public String getUserID() {
+    return this.userID;
+  }
+
+  public List<MainRequestData.Data> getData() {
+    return this.data;
+  }
 
   public static class Data implements Serializable {
       @Json(name = "name")

@@ -524,8 +524,24 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
     }
 
 
+    private Integer currentAppStackId = null;
+    private boolean actionInProgress = false;
+    private long requestSequenceCounter = 0;
+    private long lastHandledSequence = 0;
+
+    public Integer getCurrentAppStackId() {
+        return currentAppStackId;
+    }
+
+    public void setCurrentAppStackId(Integer currentAppStackId) {
+        this.currentAppStackId = currentAppStackId;
+    }
+
     protected void doAction(HashMap<String,String> lov, String actionName, String actionArgs) {
-        //   if (!validateData()) return;
+        if (actionInProgress) {
+            return;
+        }
+
         RestApi restApi = RestClient.getApi();
 
         if (restApi == null) {
@@ -552,6 +568,9 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
             return;
         }
 
+        final long thisRequestSeq = ++requestSequenceCounter;
+        actionInProgress = true;
+
         MainRequestData mainRequestData = new MainRequestData();
 
         mainRequestData.setSessionID(sessionID);
@@ -560,13 +579,31 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
         mainRequestData.setActionArgs(actionArgs);
         mainRequestData.setDataFromLov(lov);
 
+        String reqId = java.util.UUID.randomUUID().toString();
+        mainRequestData.setRequestId(reqId);
+
+        if ("go".equalsIgnoreCase(actionName) || "back".equalsIgnoreCase(actionName)) {
+            mainRequestData.setExpectedAppStackId(currentAppStackId);
+        } else {
+            mainRequestData.setExpectedAppStackId(null);
+        }
 
         Call<MainResponseData> callAction = restApi.doAction(mainRequestData);
 
-        if(callAction == null) return;
+        if(callAction == null) {
+            actionInProgress = false;
+            return;
+        }
+
         callAction.enqueue(new Callback<MainResponseData>() {
             @Override
             public void onResponse(@NonNull Call<MainResponseData> call, @NonNull Response<MainResponseData> response) {
+                if (thisRequestSeq < lastHandledSequence) {
+                    return;
+                }
+                lastHandledSequence = thisRequestSeq;
+                actionInProgress = false;
+
                 MainResponseData lr = response.body();
 
                 if(lr == null) {
@@ -577,21 +614,28 @@ public class MainActivity extends AppCompatActivity implements IMainListener {
                     return;
                 }
 
+                if (Boolean.TRUE.equals(lr.getStateIncluded())) {
+                    currentAppStackId = lr.getAppStackId();
+                }
+
                 processLayoutData(lr);
             }
 
             @Override
-            public void onFailure(Call<MainResponseData> call, Throwable t) {
+            public void onFailure(@NonNull Call<MainResponseData> call, @NonNull Throwable t) {
+                if (thisRequestSeq < lastHandledSequence) {
+                    return;
+                }
+                lastHandledSequence = thisRequestSeq;
+                actionInProgress = false;
+
                 callAction.cancel();
                 if(t!=null && t.getCause() != null)
                     displayAlert(getString(R.string.login_connection_error), t.getCause().getMessage());
                 else
                     displayAlert(getString(R.string.login_connection_error), getString(R.string.server_is_unreachable));
             }
-
-            //
-        }); // callLogin.enqueue
-
+        });
     }
 
     void processLayoutData(MainResponseData mrd) {

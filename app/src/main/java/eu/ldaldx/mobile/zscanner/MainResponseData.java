@@ -18,6 +18,18 @@ public class MainResponseData implements Serializable {
   }
 
 
+  @Json(name = "requestId")
+  private String requestId;
+
+  @Json(name = "appStackId")
+  private Integer appStackId;
+
+  @Json(name = "stateIncluded")
+  private Boolean stateIncluded;
+
+  @Json(name = "staleState")
+  private Boolean staleState;
+
   private List<Data> data;
 
   private List<Browser> browser;
@@ -26,7 +38,37 @@ public class MainResponseData implements Serializable {
 
   private List<Menu> menu;
 
+  public String getRequestId() {
+    return this.requestId;
+  }
 
+  public void setRequestId(String requestId) {
+    this.requestId = requestId;
+  }
+
+  public Integer getAppStackId() {
+    return this.appStackId;
+  }
+
+  public void setAppStackId(Integer appStackId) {
+    this.appStackId = appStackId;
+  }
+
+  public Boolean getStateIncluded() {
+    return this.stateIncluded;
+  }
+
+  public void setStateIncluded(Boolean stateIncluded) {
+    this.stateIncluded = stateIncluded;
+  }
+
+  public Boolean getStaleState() {
+    return this.staleState;
+  }
+
+  public void setStaleState(Boolean staleState) {
+    this.staleState = staleState;
+  }
 
   public List<Data> getData() {
     return this.data;
